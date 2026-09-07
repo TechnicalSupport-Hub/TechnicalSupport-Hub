@@ -1,9 +1,40 @@
-import React from 'react'
+import React from "react";
+import { Button, Input } from "../components";
 
-function Signup() {
+export default function SignupForm() {
   return (
-    <div>Signup</div>
-  )
-}
+    <form className="space-y-4">
+      <Input
+        id="signup-name"
+        label="Full Name"
+        type="text"
+        placeholder=""
+      />
 
-export default Signup
+      <Input
+        id="signup-email"
+        label="Email"
+        type="email"
+        placeholder=""
+      />
+
+      <Input
+        id="signup-password"
+        label="Password"
+        type="password"
+        placeholder="••••••••"
+      />
+
+      <Input
+        id="signup-confirm"
+        label="Confirm Password"
+        type="password"
+        placeholder="••••••••"
+      />
+
+      <Button type="button" fullWidth>
+        Create Account
+      </Button>
+    </form>
+  );
+}

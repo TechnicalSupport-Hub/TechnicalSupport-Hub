@@ -1,9 +1,26 @@
-import React from 'react'
+import React from "react";
+import { Button, Input } from "../components";
 
-function Login() {
+export default function Login() {
   return (
-    <div>Login</div>
-  )
-}
+    <form className="space-y-4">
+      <Input
+        id="login-email"
+        label="Email"
+        type="email"
+        placeholder=""
+      />
 
-export default Login
+      <Input
+        id="login-password"
+        label="Password"
+        type="password"
+        placeholder="••••••••"
+      />
+
+      <Button type="button" fullWidth>
+        Sign In
+      </Button>
+    </form>
+  );
+}
