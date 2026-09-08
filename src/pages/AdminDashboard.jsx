@@ -6,16 +6,19 @@ import TicketsGrid from '../components/TicketsGrid';
 import AdminHistoryTable from '../components/AdminHistoryTable';
 import NotebookTicketList from '../components/NotebookTicketList';
 import TicketDetailModal from '../components/TicketDetailModal';
+import AdminFaqManager from '../components/AdminFaqManager';
+import AdminIssueClustering from '../components/AdminIssueClustering';
 import { useApp } from '../context/useApp';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const { auth, logout, tickets, updateTicketStatus } = useApp();
+  const { auth, logout, tickets, updateTicketStatus, faqs } = useApp();
 
-  const [activeTab, setActiveTab] = useState('active'); // 'active' | 'history'
+  const [activeTab, setActiveTab] = useState('active'); // 'active' | 'history' | 'clustering' | 'faqs'
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [prefillFaqData, setPrefillFaqData] = useState(null);
 
   // Active & History counts
   const activeTicketsCount = tickets.filter(
@@ -43,6 +46,11 @@ export default function AdminDashboard() {
 
   const handleSwitchToUserPortal = () => {
     navigate('/faq');
+  };
+
+  const handleConvertToFaq = (faqDraft) => {
+    setPrefillFaqData(faqDraft);
+    setActiveTab('faqs');
   };
 
   return (
@@ -112,6 +120,7 @@ export default function AdminDashboard() {
           onSignOut={handleSignOut}
           activeTicketsCount={activeTicketsCount}
           historyTicketsCount={historyTicketsCount}
+          faqsCount={faqs.length}
           onSwitchToUserPortal={handleSwitchToUserPortal}
         />
       </div>
@@ -154,7 +163,7 @@ export default function AdminDashboard() {
         )}
 
         {/* Content based on Active Tab */}
-        {activeTab === 'active' ? (
+        {activeTab === 'active' && (
           viewMode === 'grid' ? (
             <TicketsGrid
               tickets={tickets}
@@ -169,15 +178,32 @@ export default function AdminDashboard() {
               onStatusChange={handleStatusChange}
             />
           )
-        ) : (
+        )}
+
+        {activeTab === 'history' && (
           <AdminHistoryTable
             tickets={tickets}
             onViewDetails={(t) => setSelectedTicket(t)}
           />
         )}
+
+        {activeTab === 'clustering' && (
+          <AdminIssueClustering
+            tickets={tickets}
+            onConvertToFaq={handleConvertToFaq}
+          />
+        )}
+
+        {activeTab === 'faqs' && (
+          <AdminFaqManager
+            key={prefillFaqData?.question || 'default'}
+            prefillData={prefillFaqData}
+            onClearPrefill={() => setPrefillFaqData(null)}
+          />
+        )}
       </div>
 
-      {/* Ticket Details Modal (Major Details View) */}
+      {/* Ticket Details Modal */}
       {selectedTicket && (
         <TicketDetailModal
           ticket={selectedTicket}

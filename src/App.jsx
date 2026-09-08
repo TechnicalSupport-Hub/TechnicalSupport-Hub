@@ -7,6 +7,7 @@ import {
   Dashboard,
   FAQ,
   Landing,
+  Profile,
 } from "./pages";
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/create-ticket" element={<CreateTicket />} />
               <Route path="/faq" element={<FAQ />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

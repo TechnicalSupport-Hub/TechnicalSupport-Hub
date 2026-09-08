@@ -9,6 +9,9 @@ import TicketCard from "./TicketCard";
 import TicketsGrid from "./TicketsGrid";
 import TicketDetailModal from "./TicketDetailModal";
 import NotebookTicketList from "./NotebookTicketList";
+import NotificationBell from "./NotificationBell";
+import AdminFaqManager from "./AdminFaqManager";
+import AdminIssueClustering from "./AdminIssueClustering";
 
 export {
   Header,
@@ -22,4 +25,7 @@ export {
   TicketsGrid,
   TicketDetailModal,
   NotebookTicketList,
+  NotificationBell,
+  AdminFaqManager,
+  AdminIssueClustering,
 };

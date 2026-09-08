@@ -4,16 +4,19 @@ import {
   History, 
   LogOut, 
   Ticket,
-  ExternalLink
+  ExternalLink,
+  Layers,
+  HelpCircle
 } from 'lucide-react';
 
 export default function AdminSidebar({
   adminProfile,
-  activeTab, // 'active' | 'history'
+  activeTab, // 'active' | 'history' | 'clustering' | 'faqs'
   onSelectTab,
   onSignOut,
   activeTicketsCount = 0,
   historyTicketsCount = 0,
+  faqsCount = 0,
   onSwitchToUserPortal,
 }) {
   return (
@@ -116,6 +119,49 @@ export default function AdminSidebar({
               }`}
             >
               {historyTicketsCount}
+            </span>
+          </button>
+
+          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider px-3 pt-3 mb-1 block">
+            Knowledge & Analytics
+          </span>
+
+          <button
+            type="button"
+            onClick={() => onSelectTab('clustering')}
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${
+              activeTab === 'clustering'
+                ? 'bg-[#0084ff] text-white shadow-sm'
+                : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <Layers size={18} />
+              <span>Issue Trends</span>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onSelectTab('faqs')}
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${
+              activeTab === 'faqs'
+                ? 'bg-[#0084ff] text-white shadow-sm'
+                : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <HelpCircle size={18} />
+              <span>FAQ Manager</span>
+            </div>
+            <span
+              className={`text-xs px-2.5 py-0.5 rounded-full font-mono font-bold ${
+                activeTab === 'faqs'
+                  ? 'bg-white/20 text-white'
+                  : 'bg-gray-200 text-gray-700'
+              }`}
+            >
+              {faqsCount}
             </span>
           </button>
         </nav>

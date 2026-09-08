@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { ChevronDown, ArrowRight, HelpCircle } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useApp } from "../context/useApp";
 
-const FAQ_ITEMS = [
+const DEFAULT_FAQ_ITEMS = [
   {
     id: "faq-1",
     question: "How long does it typically take to resolve a support ticket?",
@@ -78,7 +79,16 @@ const FAQ_ITEMS = [
 ];
 
 export default function FAQ() {
+  const { faqs } = useApp();
   const [openId, setOpenId] = useState("faq-1");
+
+  // Merge admin-published FAQs with default seed FAQs (deduplicating by id)
+  const allFaqs = [
+    ...(faqs || []),
+    ...DEFAULT_FAQ_ITEMS.filter(
+      (def) => !faqs?.some((f) => f.id === def.id || f.question === def.question)
+    ),
+  ];
 
   const toggleAccordion = (id) => {
     setOpenId(openId === id ? null : id);
@@ -107,7 +117,7 @@ export default function FAQ() {
         </section>
 
         <div className="space-y-3">
-          {FAQ_ITEMS.map((item) => {
+          {allFaqs.map((item) => {
             const isOpen = openId === item.id;
 
             return (
@@ -139,7 +149,7 @@ export default function FAQ() {
 
                 {isOpen && (
                   <div className="border-t border-gray-100 px-5 pb-5 pt-4 sm:px-6">
-                    <p className="text-sm leading-6 text-gray-500">
+                    <p className="text-sm leading-6 text-gray-500 whitespace-pre-line">
                       {item.answer}
                     </p>
                   </div>

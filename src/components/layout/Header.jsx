@@ -1,7 +1,11 @@
-import { HelpCircle, HeartHandshake } from "lucide-react";
+import { HelpCircle, HeartHandshake, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useApp } from "../../context/useApp";
+import NotificationBell from "../NotificationBell";
 
 export default function Header() {
+  const { auth } = useApp();
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-gray-200 bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-[68px] max-w-7xl items-center justify-between px-5 sm:px-8">
@@ -17,7 +21,7 @@ export default function Header() {
           </div>
         </Link>
 
-        <nav className="flex items-center">
+        <nav className="flex items-center gap-2.5 sm:gap-3">
           <Link
             to="/faq"
             className="group flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
@@ -29,6 +33,36 @@ export default function Header() {
             />
             <span>FAQ</span>
           </Link>
+
+          {/* User Notifications */}
+          {auth.isAuthenticated && <NotificationBell />}
+
+          {/* Admin Desk Shortcut for Admin */}
+          {auth.isAuthenticated && auth.role === "admin" && (
+            <Link
+              to="/admin"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-[#0084ff] border border-blue-200 hover:bg-blue-100 transition-colors"
+            >
+              <ShieldCheck size={14} />
+              <span>Admin Desk</span>
+            </Link>
+          )}
+
+          {/* User Profile Navigation */}
+          {auth.isAuthenticated && (
+            <Link
+              to="/profile"
+              className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors border border-gray-200"
+              title="User Profile"
+            >
+              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-[#0084ff] text-white text-xs font-bold">
+                {auth.name ? auth.name[0].toUpperCase() : "U"}
+              </div>
+              <span className="hidden sm:inline font-semibold">
+                {auth.name ? auth.name.split(" ")[0] : "Profile"}
+              </span>
+            </Link>
+          )}
         </nav>
       </div>
     </header>

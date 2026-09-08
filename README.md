@@ -1,169 +1,147 @@
 # AutoTicket — Technical Support Hub
 
-A modern, responsive Technical Support Hub and Ticket Management application built with **React**, **React Router**, and **Tailwind CSS**. The application provides an integrated user experience featuring a self-service knowledge base, a ticket submission pipeline, and an administrative control desk with real-time status updates and audit history.
+A modern, full-featured Technical Support Hub and Ticket Management application built with **React 19**, **Supabase (PostgreSQL & Auth)**, **React Router (v7)**, and **Tailwind CSS**.
+
+The application provides an integrated experience featuring customer self-service FAQs, an issue submission pipeline, user profiles, real-time ticket state notifications, an admin operations desk, automated duplicate issue clustering across unique users, and an administrative FAQ publishing engine.
 
 ---
 
 ## Table of Contents
-1. [Overview & Tech Stack](#overview--tech-stack)
-2. [Quick Start & Installation](#quick-start--installation)
-3. [Hardcoded Mock Authentication](#hardcoded-mock-authentication)
-4. [Routing & Application Flows](#routing--application-flows)
-   - [User Flow](#user-flow)
-   - [Admin Flow](#admin-flow)
-5. [Admin Features & Functionality](#admin-features--functionality)
-6. [Design System & Theme Specifications](#design-system--theme-specifications)
-7. [Code Quality & Standards](#code-quality--standards)
+1. [Tech Stack & Architecture](#tech-stack--architecture)
+2. [Quick Start & Setup](#quick-start--setup)
+3. [Supabase Database & Authentication Configuration](#supabase-database--authentication-configuration)
+4. [Key Features](#key-features)
+   - [1. User Flow & Self-Service Portal](#1-user-flow--self-service-portal)
+   - [2. User Profile Management](#2-user-profile-management)
+   - [3. Ticket State Change Notifications](#3-ticket-state-change-notifications)
+   - [4. Admin Support Desk](#4-admin-support-desk)
+   - [5. Issue Trends & Unique User Clustering](#5-issue-trends--unique-user-clustering)
+   - [6. Admin FAQ Publishing Engine](#6-admin-faq-publishing-engine)
+5. [Routing Reference](#routing-reference)
+6. [Code Quality & Design System](#code-quality--design-system)
 
 ---
 
-## Overview & Tech Stack
+## Tech Stack & Architecture
 
-- **Framework**: React 19 + Vite
+- **Frontend**: React 19, Vite 8
+- **Database & Auth**: Supabase (`@supabase/supabase-js`) with transparent offline/mock fallback
 - **Routing**: `react-router-dom` (v7)
-- **Styling**: Tailwind CSS (Strict `rem`-based utility classes, no inline styles, no hardcoded arbitrary pixel brackets)
+- **Styling**: Tailwind CSS (strict `rem`-based utility classes, no inline styles, no arbitrary pixel brackets)
 - **Icons**: Lucide React
-- **State Management**: Simple React Context (`AppContext`) with standard React hooks (`useState`, `useMemo`, `useContext`)
+- **State Layer**: React Context (`AppContext`) with optimistic local updates and remote Supabase PostgreSQL syncing
 
 ---
 
-## Quick Start & Installation
+## Quick Start & Setup
 
-### 1. Prerequisites
-Ensure you have Node.js (v18 or higher) and npm installed:
-```bash
-node -v
-npm -v
-```
-
-### 2. Install Dependencies
+### 1. Install Dependencies
 ```bash
 npm install
 ```
 
-### 3. Start Development Server
+### 2. Configure Environment (Optional for Supabase)
+Copy `.env.example` to `.env`:
+```bash
+cp .env.example .env
+```
+Provide your Supabase URL and public Anon Key:
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key-here
+```
+> **Note**: The application has an embedded fallback layer. If `.env` keys are not yet configured, the app runs smoothly in offline mode with sample tickets, clustering, and state management.
+
+### 3. Run Development Server
 ```bash
 npm run dev
 ```
-Open your browser at the URL shown in your terminal (typically `http://localhost:5173/`).
 
-### 4. Run Linting & Production Build
+### 4. Lint and Production Build
 ```bash
-# Check code quality and zero-unused-imports
 npm run lint
-
-# Build production bundle
 npm run build
 ```
 
 ---
 
-## Hardcoded Mock Authentication
+## Supabase Database & Authentication Configuration
 
-The application uses an integrated mock authentication state managed by `AppContext`. No backend or external authentication service is required.
+To run with your live Supabase cloud database:
 
-### How the Role Toggle Works
-
-On the Landing Page (`/`), the Sign-In card includes an **Account Role** segmented control:
-
-```
-+-----------------------------------------------------------+
-|                      Welcome back                         |
-|         Sign in to manage your support tickets.           |
-|                                                           |
-|       [   User Portal   ]    [   Admin Portal   ]         |
-+-----------------------------------------------------------+
-```
-
-1. **User Portal Toggle**:
-   - Pre-fills email with `user@autoticket.com`.
-   - On submission, authenticates the session with the `user` role and navigates to the **User Flow** (`/faq`).
-
-2. **Admin Portal Toggle**:
-   - Pre-fills email with `admin@autoticket.com`.
-   - On submission, authenticates the session with the `admin` role and navigates to the **Admin Flow** (`/admin`).
-
-3. **Smart Email Detection**:
-   - Typing any email containing `admin` automatically routes to the Admin Desk upon clicking **Sign In**.
-   - Any other email routes to the User Portal.
-
-4. **Default Mock Credentials**:
-   - **User**: `user@autoticket.com` / `password123`
-   - **Admin**: `admin@autoticket.com` / `password123`
+1. Create a free project at [supabase.com](https://supabase.com).
+2. Go to **SQL Editor** in your Supabase Dashboard.
+3. Open the provided schema file: [`supabase/schema.sql`](supabase/schema.sql).
+4. Copy its contents and paste into the SQL Editor, then click **Run**.
+   - This creates the `profiles`, `tickets`, `faqs`, and `notifications` tables.
+   - It sets up Row Level Security (RLS) policies and enables Realtime publication.
+5. In your project settings, copy your **Project URL** and **anon public** API key into your `.env` file:
+   ```env
+   VITE_SUPABASE_URL=https://xxxxxxxxxxxxxxxx.supabase.co
+   VITE_SUPABASE_ANON_KEY=eyJhbGciOi...
+   ```
+6. Restart the dev server (`npm run dev`). The application is now connected to live Supabase Postgres!
 
 ---
 
-## Routing & Application Flows
+## Key Features
 
-| Route | Page / Component | Description |
+### 1. User Flow & Self-Service Portal
+- **Landing Page (`/`)**: Easy role toggle to sign in as **User** (`user@autoticket.com`) or **Admin** (`admin@autoticket.com`).
+- **Help Center (`/faq`)**: Browse interactive accordion answers. Includes dynamically added articles published by admins in real time.
+- **Raise Ticket Form (`/create-ticket`)**: Customers report problems with issue title, detailed description, and image attachment drag-and-drop. Newly created tickets are stored directly in the database.
+
+### 2. User Profile Management
+- Accessible at `/profile` or via the user avatar in the Header.
+- Users can update their **Full Name**, **Department/Team**, and **Phone Number**.
+- Updates are persisted to the database and reflected across the app.
+
+### 3. Ticket State Change Notifications
+- Whenever an Admin updates a ticket's status (`Pending`, `Processing`, `Reject`, `Resolved`), a notification is created for that ticket's user.
+- **Header Notification Bell**: Displays an animated unread badge.
+- Clicking the bell opens a popover displaying recent ticket status updates with a **"Mark all read"** action.
+
+### 4. Admin Support Desk
+- **Active Queue**: High-level overview displaying only essential metadata (**Ticket ID**, **User ID**, **Issue Title**, **Status Badge**, and **Actions**).
+- **Status Dropdown**: Change ticket status directly from the card.
+- **Ticket History & Archive**: Searchable audit log of resolved and rejected tickets.
+- **Major Detail Modal**: Clicking **View Details** opens the full modal with untruncated description, customer details, and evidence attachments.
+
+### 5. Issue Trends & Unique User Clustering
+- Located in the Admin Desk under **Issue Trends**.
+- Automatically analyzes tickets across the database using keyword and symptom extraction.
+- Computes:
+  - **Number of same tickets** reported.
+  - **Number of distinct unique users affected**.
+  - **Top FAQ Candidate** badge for high-frequency bottlenecks.
+- Includes a one-click **"Add to Knowledge Base"** action that pre-fills the FAQ publisher with the recurring issue and suggested resolution.
+
+### 6. Admin FAQ Publishing Engine
+- Located in the Admin Desk under **FAQ Manager**.
+- Admins can draft and publish new FAQ articles directly into the database.
+- Published articles immediately appear on the public `/faq` page for all users.
+- Includes delete and category management capabilities.
+
+---
+
+## Routing Reference
+
+| Route | Component | Description |
 | :--- | :--- | :--- |
-| `/` | `Landing.jsx` | Landing page with Hero Section and Login/Signup tabs. |
-| `/login` | `Landing.jsx` | Alternate route navigating to Landing Sign-In. |
-| `/signup` | `Landing.jsx` | Alternate route navigating to Landing Sign-Up. |
-| `/faq` | `FAQ.jsx` | User knowledge base with interactive accordion answers. |
-| `/create-ticket` | `CreateTicket.jsx` | User ticket creation form with validation & image upload. |
-| `/admin` | `AdminDashboard.jsx` | Admin workspace (Active Queue, History, Modal, Status). |
-| `/dashboard` | `Dashboard.jsx` | Redirects to `/faq` for a seamless user portal experience. |
-| `*` | `Navigate` | Catch-all wildcard redirecting to `/`. |
-
-### User Flow
-1. **Landing (`/`)**: Toggle to **User Portal** and click **Sign In as User**.
-2. **Help Center & FAQ (`/faq`)**: Browse frequently asked questions with smooth expandable accordions.
-3. **Raise Ticket (`/create-ticket`)**: Click the **Create Ticket** button at the bottom of the FAQ page to access the issue submission form:
-   - Provide issue title and comprehensive description.
-   - Drag-and-drop or browse to upload screenshot evidence (PNG/JPG up to 10MB) with instant live preview.
-   - Click **Submit Ticket** to generate a unique ticket ID (`TKT-xxxx`) and add it to the active queue.
-   - Cancel button safely returns to `/faq`.
-
-### Admin Flow
-1. **Landing (`/`)**: Toggle to **Admin Portal** and click **Sign In as Admin**.
-2. **Admin Dashboard (`/admin`)**:
-   - **Active Support Queue**: Minimal detail overview displaying only **Ticket ID**, **User ID**, **Issue Title** (prominent, readable font, no description clutter), and **Status Badge**.
-   - **Interactive Status Dropdown**: Change ticket status directly between `Processing`, `Reject`, and `Resolved` with immediate UI feedback.
-   - **Ticket History & Archive**: Table view showing strictly **Ticket ID**, **User ID**, **Issue Title**, **Status**, and **Action** (no descriptions in the table).
-   - **Details Modal (Major Details)**: Click **View Details** or **View** on any card or table row to open the modal containing full details (User Name, Email, User ID, Created Date, Full Description, and Attachment Evidence with image preview & download).
-   - **Navigation Actions**: Use **Switch to User Portal** to inspect the customer view, or **Logout** to return to the landing page.
+| `/` | `Landing.jsx` | Landing page with Hero Section and Sign In / Sign Up tabs. |
+| `/faq` | `FAQ.jsx` | Customer Help Center with dynamic Supabase FAQs. |
+| `/create-ticket` | `CreateTicket.jsx` | Ticket submission form with validation and upload. |
+| `/profile` | `Profile.jsx` | User profile, department, and contact information. |
+| `/admin` | `AdminDashboard.jsx` | Admin Desk (Queue, History, Issue Trends, FAQ Manager). |
+| `/dashboard` | `Dashboard.jsx` | Redirects to `/faq`. |
+| `*` | `Navigate` | Wildcard route redirecting to `/`. |
 
 ---
 
-## Admin Features & Functionality
+## Code Quality & Design System
 
-1. **State-Driven Ticket Management**:
-   - Tickets are stored in `AppContext` and shared between the user submission pipeline and the admin desk.
-   - Any ticket created by a user via `/create-ticket` immediately appears in the admin queue.
-2. **Interactive Status Dropdown**:
-   - Located on each ticket card in the Active Queue.
-   - Allows instant status changes: `Processing`, `Reject`, `Resolved`.
-   - Changing a status to `Resolved` or `Reject` automatically transitions the ticket into the **Ticket History & Archive** tab.
-3. **Ticket Detail Modal**:
-   - Accessible via the **View Details** action.
-   - Displays User Name, Email, User ID, Created Timestamp, Title, Detailed Description, and Attachment preview with direct download link.
-   - Includes quick status update buttons and a clean backdrop-dismiss / close button.
-4. **Responsive Layout**:
-   - **Desktop (>= 1024px)**: Dedicated left-hand `AdminSidebar` with active/history ticket counter badges.
-   - **Mobile (< 1024px)**: Responsive top navigation bar with a collapsible hamburger menu for the admin sidebar.
-
----
-
-## Design System & Theme Specifications
-
-The Admin pages strictly inherit and harmonize with the **Dark Black & Blue Gradient** design system established by the Landing and FAQ pages:
-
-- **Hero & Section Banners**: Deep black container (`bg-gray-950`) with an ambient radial glow (`bg-[#0084ff]/20 blur-3xl`), crisp white typography, and blue badge accents (`bg-[#0084ff]/15 text-[#0084ff]`).
-- **Cards & Surfaces**: Clean white cards (`bg-white border border-gray-200 shadow-sm`), rounded corners (`rounded-2xl`), and subtle background fills (`bg-gray-50`).
-- **Brand Accent**: `#0084ff` (hover `#0074e0`, rings `focus:ring-[#0084ff]`).
-- **Semantic Status Badges**:
-  - **Processing**: `bg-blue-50 text-blue-700 border-blue-200`
-  - **Resolved**: `bg-emerald-50 text-emerald-700 border-emerald-200`
-  - **Rejected**: `bg-rose-50 text-rose-700 border-rose-200`
-  - **Pending**: `bg-amber-50 text-amber-700 border-amber-200`
-
----
-
-## Code Quality & Standards
-
-- **Zero Inline Styles**: No `style={{...}}` anywhere in the application.
-- **Strict `rem`-based Utility Classes**: All arbitrary pixel bracket classes (such as `text-[10px]`, `text-[11px]`, `min-w-[240px]`, `max-w-[140px]`, `p-[1px]`) have been refactored to standard Tailwind utilities (`text-xs`, `min-w-60`, `max-w-36`, `p-0.5`, `rounded-xl`).
-- **Clean Codebase**: All unused React imports, dead template CSS files (`App.css`), and empty stub components have been removed.
-- **Fast Refresh Compliant**: Context definitions and hooks adhere to Vite React Fast Refresh rules.
-- **Zero ESLint Errors**: The project passes `npm run lint` with 0 errors and 0 warnings.
+- **Zero Inline Styles**: All styling is driven by Tailwind CSS utilities.
+- **Zero Arbitrary Pixel Bracket Classes**: Converted to standard `rem`-based Tailwind sizing (`text-xs`, `text-sm`, `min-w-60`, `max-w-36`, `p-0.5`).
+- **Dark Black & Blue Gradient Theme**: Ambient glowing hero banners (`bg-gray-950` with `#0084ff/20` blur glow), crisp white cards (`bg-white border border-gray-200`), and curated status badge palettes.
+- **Vite Fast Refresh Compliant**: Context definitions and hooks split across clean module boundaries.
+- **Zero ESLint Errors**: Verified with `npm run lint` and `npm run build`.
