@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 
 export default function Footer() {
@@ -7,7 +6,7 @@ export default function Footer() {
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-5 py-6 sm:flex-row sm:px-8">
         <div className="flex items-center gap-2.5">
           <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-600 text-white">
-            <span className="text-[11px] font-semibold">A</span>
+            <span className="text-xs font-semibold">A</span>
           </div>
 
           <span className="text-sm font-medium tracking-[-0.01em] text-gray-700">
@@ -23,14 +22,14 @@ export default function Footer() {
 
         <nav className="flex items-center gap-5 text-xs font-medium text-gray-500">
           <Link
-            to="/privacy"
+            to="/faq"
             className="transition-colors hover:text-gray-900"
           >
             Privacy
           </Link>
 
           <Link
-            to="/terms"
+            to="/faq"
             className="transition-colors hover:text-gray-900"
           >
             Terms

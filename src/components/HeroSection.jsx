@@ -1,5 +1,3 @@
-import React from "react";
-
 export default function HeroSection() {
   return (
     <div className="flex max-w-xl flex-col justify-center py-6 text-left">

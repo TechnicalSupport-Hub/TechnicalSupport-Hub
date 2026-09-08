@@ -1,8 +1,13 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Upload, X, ArrowLeft, AlertCircle } from "lucide-react";
 import { Button, Input } from "../components";
+import { useApp } from "../context/useApp";
 
 export default function CreateTicket({ onSubmitTicket, onCancel }) {
+  const navigate = useNavigate();
+  const { addTicket } = useApp();
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [attachment, setAttachment] = useState(null);
@@ -10,6 +15,14 @@ export default function CreateTicket({ onSubmitTicket, onCancel }) {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef(null);
+
+  const handleCancel = () => {
+    if (onCancel) {
+      onCancel();
+    } else {
+      navigate("/faq");
+    }
+  };
 
   const handleFile = (file) => {
     if (!file) return;
@@ -83,17 +96,24 @@ export default function CreateTicket({ onSubmitTicket, onCancel }) {
         1000 + Math.random() * 9000
       )}`;
 
-      onSubmitTicket({
+      const ticketPayload = {
         id: generatedId,
         title,
         description,
         attachment,
-        status: "pending",
+        status: "Pending",
         createdAt: new Date().toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
         }),
-      });
+      };
+
+      if (onSubmitTicket) {
+        onSubmitTicket(ticketPayload);
+      } else {
+        addTicket(ticketPayload);
+        navigate("/faq");
+      }
     }, 500);
   };
 
@@ -103,14 +123,14 @@ export default function CreateTicket({ onSubmitTicket, onCancel }) {
         <div className="mb-7 flex items-start gap-3">
           <button
             type="button"
-            onClick={onCancel}
-            className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition-colors hover:border-gray-300 hover:bg-gray-50 hover:text-gray-900"
+            onClick={handleCancel}
+            className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition-colors hover:border-gray-300 hover:bg-gray-50 hover:text-gray-900 cursor-pointer"
             title="Back"
           >
             <ArrowLeft size={16} />
           </button>
 
-          <div>
+          <div className="text-left">
             <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
               Raise a Complaint
             </h1>
@@ -144,7 +164,7 @@ export default function CreateTicket({ onSubmitTicket, onCancel }) {
               }}
             />
 
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 text-left">
               <label
                 htmlFor="ticket-desc"
                 className="block text-sm font-medium text-gray-700"
@@ -180,7 +200,7 @@ export default function CreateTicket({ onSubmitTicket, onCancel }) {
               )}
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 text-left">
               <label className="block text-sm font-medium text-gray-700">
                 Attachment{" "}
                 <span className="font-normal text-gray-400">
@@ -251,7 +271,7 @@ export default function CreateTicket({ onSubmitTicket, onCancel }) {
                   <button
                     type="button"
                     onClick={removeAttachment}
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-white hover:text-gray-700"
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-white hover:text-gray-700 cursor-pointer"
                     title="Remove image"
                   >
                     <X size={15} />
@@ -271,8 +291,8 @@ export default function CreateTicket({ onSubmitTicket, onCancel }) {
           <div className="mt-7 flex flex-col-reverse gap-2.5 border-t border-gray-100 pt-5 sm:flex-row sm:justify-end">
             <button
               type="button"
-              onClick={onCancel}
-              className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
+              onClick={handleCancel}
+              className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900 cursor-pointer"
             >
               Cancel
             </button>
