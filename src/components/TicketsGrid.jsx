@@ -1,44 +1,38 @@
-import { useState, useMemo } from 'react';
-import { Search, X, Inbox, LayoutGrid } from 'lucide-react';
-import TicketCard from './TicketCard';
+import { useState, useMemo } from "react";
+import { Search, X, Inbox, LayoutGrid } from "lucide-react";
+import TicketCard from "./TicketCard";
 
 export default function TicketsGrid({
   tickets = [],
-  activeTab = 'active', // 'active' | 'history'
+  activeTab = "active",
   onViewDetails,
   onStatusChange,
 }) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All'); // 'All' | 'Processing' | 'Pending' | 'Resolved' | 'Reject'
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
 
-  // Filter based on active tab and search query
   const filteredTickets = useMemo(() => {
-    return tickets.filter((t) => {
-      // Tab filter
-      if (activeTab === 'active') {
-        // Active tickets are Pending or Processing
-        if (t.status === 'Resolved' || t.status === 'Reject' || t.status === 'Rejected') {
-          return false;
-        }
-      } else if (activeTab === 'history') {
-        // History tickets are Resolved or Reject/Rejected
-        if (t.status !== 'Resolved' && t.status !== 'Reject' && t.status !== 'Rejected') {
-          return false;
-        }
+    return tickets.filter((ticket) => {
+      const isHistorical =
+        ticket.status === "Resolved" ||
+        ticket.status === "Reject" ||
+        ticket.status === "Rejected";
+
+      // 1. Tab filter
+      if (activeTab === "active" && isHistorical) return false;
+      if (activeTab === "history" && !isHistorical) return false;
+
+      // 2. Status pill filter
+      if (statusFilter !== "All" && ticket.status !== statusFilter) {
+        return false;
       }
 
-      // Status pill filter
-      if (statusFilter !== 'All') {
-        const normalized = t.status === 'Rejected' ? 'Reject' : t.status;
-        if (normalized !== statusFilter) return false;
-      }
-
-      // Search query
+      // 3. Search query filter
       if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase();
-        const matchesId = t.id.toLowerCase().includes(q);
-        const matchesUser = t.userId?.toLowerCase().includes(q);
-        const matchesTitle = t.title?.toLowerCase().includes(q);
+        const query = searchQuery.toLowerCase();
+        const matchesId = ticket.id?.toLowerCase().includes(query);
+        const matchesUser = ticket.userId?.toLowerCase().includes(query);
+        const matchesTitle = ticket.title?.toLowerCase().includes(query);
         return matchesId || matchesUser || matchesTitle;
       }
 
@@ -46,15 +40,14 @@ export default function TicketsGrid({
     });
   }, [tickets, activeTab, statusFilter, searchQuery]);
 
-  // Dynamic filter pill options based on active tab
   const filterOptions =
-    activeTab === 'active'
-      ? ['All', 'Processing', 'Pending']
-      : ['All', 'Resolved', 'Reject'];
+    activeTab === "active"
+      ? ["All", "Processing", "Pending"]
+      : ["All", "Resolved", "Reject"];
 
   return (
     <div className="flex-1 flex flex-col p-4 sm:p-6 lg:p-8 overflow-y-auto text-left">
-      {/* Header Banner with Dark Black & Blue Gradient Theme */}
+      {/* Header Banner */}
       <section className="relative mb-6 overflow-hidden rounded-2xl bg-gray-950 px-6 py-6 sm:px-8 sm:py-7">
         <div className="absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#0084ff]/20 blur-3xl" />
 
@@ -65,19 +58,25 @@ export default function TicketsGrid({
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-              {activeTab === 'active' ? 'Active Support Queue' : 'Ticket History & Archive'}
+              {activeTab === "active"
+                ? "Active Support Queue"
+                : "Ticket History & Archive"}
             </h1>
 
             <p className="mt-1 max-w-xl text-sm text-gray-400">
-              {activeTab === 'active'
-                ? 'Overview of active support tickets. Click View Details for complete major details.'
-                : 'Archived resolved resolutions and rejected ticket history.'}
+              {activeTab === "active"
+                ? "Overview of active support tickets. Click View Details for complete major details."
+                : "Archived resolved resolutions and rejected ticket history."}
             </p>
           </div>
 
           <div className="self-start sm:self-auto">
             <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-300 bg-white/10 border border-white/10 px-3.5 py-1.5 rounded-xl backdrop-blur-xs">
-              Showing: <span className="text-[#0084ff] font-mono font-bold">{filteredTickets.length}</span> tickets
+              Showing:{" "}
+              <span className="text-[#0084ff] font-mono font-bold">
+                {filteredTickets.length}
+              </span>{" "}
+              tickets
             </span>
           </div>
         </div>
@@ -85,7 +84,6 @@ export default function TicketsGrid({
 
       {/* Search and Filters Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-gray-200">
-        {/* Search Bar */}
         <div className="relative flex-1 max-w-md">
           <Search
             size={16}
@@ -101,7 +99,7 @@ export default function TicketsGrid({
           {searchQuery && (
             <button
               type="button"
-              onClick={() => setSearchQuery('')}
+              onClick={() => setSearchQuery("")}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
             >
               <X size={15} />
@@ -116,7 +114,7 @@ export default function TicketsGrid({
           </span>
           {filterOptions.map((opt) => {
             const isSelected = statusFilter === opt;
-            const displayLabel = opt === 'Reject' ? 'Rejected' : opt;
+            const displayLabel = opt === "Reject" ? "Rejected" : opt;
             return (
               <button
                 key={opt}
@@ -124,8 +122,8 @@ export default function TicketsGrid({
                 onClick={() => setStatusFilter(opt)}
                 className={`px-3.5 py-2 rounded-xl text-sm font-semibold transition-colors cursor-pointer whitespace-nowrap ${
                   isSelected
-                    ? 'bg-[#0084ff] text-white shadow-sm'
-                    : 'bg-white text-gray-600 hover:text-gray-900 border border-gray-200 hover:bg-gray-50'
+                    ? "bg-[#0084ff] text-white shadow-sm"
+                    : "bg-white text-gray-600 hover:text-gray-900 border border-gray-200 hover:bg-gray-50"
                 }`}
               >
                 {displayLabel}
@@ -148,7 +146,6 @@ export default function TicketsGrid({
           ))}
         </div>
       ) : (
-        /* Empty State */
         <div className="flex flex-col items-center justify-center p-12 text-center rounded-2xl bg-gray-50 border border-dashed border-gray-300 my-6">
           <div className="w-12 h-12 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-400 mb-3 shadow-xs">
             <Inbox size={24} />
@@ -159,14 +156,14 @@ export default function TicketsGrid({
           <p className="text-sm text-gray-500 mt-1 max-w-sm">
             {searchQuery
               ? `No tickets matching "${searchQuery}". Try another keyword or clear filters.`
-              : 'There are currently no tickets in this view.'}
+              : "There are currently no tickets in this view."}
           </p>
           {searchQuery && (
             <button
               type="button"
               onClick={() => {
-                setSearchQuery('');
-                setStatusFilter('All');
+                setSearchQuery("");
+                setStatusFilter("All");
               }}
               className="mt-4 px-4 py-2 rounded-xl text-sm font-semibold text-[#0084ff] bg-blue-50 border border-blue-200 hover:bg-blue-100 transition-colors cursor-pointer"
             >

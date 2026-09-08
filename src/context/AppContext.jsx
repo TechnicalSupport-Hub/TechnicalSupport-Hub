@@ -1,259 +1,353 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { AppContext } from "./AppContextInstance";
-import { INITIAL_TICKETS, INITIAL_FAQS } from "./initialTickets";
-import { supabase, isSupabaseConfigured } from "../lib/supabase";
+import { supabase } from "../lib/supabase";
 
 export function AppProvider({ children }) {
+  // Authentication state
   const [auth, setAuth] = useState({
     isAuthenticated: false,
-    role: "user", // 'user' | 'admin'
+    role: "user",
     email: "",
     name: "",
     id: "",
   });
 
+  // User profile state
   const [profile, setProfile] = useState({
-    fullName: "Demo Customer",
-    email: "user@autoticket.com",
-    department: "Customer Operations",
-    phone: "+1 (555) 234-5678",
+    fullName: "",
+    email: "",
+    department: "",
+    phone: "",
     role: "user",
   });
 
-  const [tickets, setTickets] = useState(INITIAL_TICKETS);
-  const [faqs, setFaqs] = useState(INITIAL_FAQS);
+  // Main data collections
+  const [tickets, setTickets] = useState([]);
+  const [faqs, setFaqs] = useState([]);
   const [notifications, setNotifications] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Sync with Supabase on mount if configured
-  useEffect(() => {
-    if (!isSupabaseConfigured || !supabase) return;
+  // 1. Fetch User Profile
+  const fetchProfile = useCallback(async (userId, fallbackEmail = "", fallbackName = "") => {
+    if (!userId) return;
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
 
-    async function loadSupabaseData() {
-      setIsLoading(true);
-      try {
-        // 1. Auth session check
-        const { data: sessionData } = await supabase.auth.getSession();
-        if (sessionData?.session?.user) {
-          const user = sessionData.session.user;
-          const userRole = user.user_metadata?.role || "user";
-          const userName = user.user_metadata?.full_name || user.email.split("@")[0];
-
-          setAuth({
-            isAuthenticated: true,
-            role: userRole,
-            email: user.email,
-            name: userName,
-            id: user.id,
-          });
-
-          setProfile({
-            fullName: userName,
-            email: user.email,
-            department: user.user_metadata?.department || "Engineering",
-            phone: user.user_metadata?.phone || "",
-            role: userRole,
-          });
-        }
-
-        // 2. Fetch Tickets from DB
-        const { data: dbTickets, error: ticketsErr } = await supabase
-          .from("tickets")
-          .select("*")
-          .order("created_at", { ascending: false });
-
-        if (!ticketsErr && dbTickets && dbTickets.length > 0) {
-          const mapped = dbTickets.map((t) => ({
-            id: t.id,
-            userId: t.user_id,
-            userName: t.user_name,
-            userEmail: t.user_email,
-            title: t.title,
-            description: t.description,
-            status: t.status,
-            createdAt: new Date(t.created_at).toLocaleDateString([], {
-              month: "short",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-            attachment: t.attachment,
-          }));
-          setTickets(mapped);
-        }
-
-        // 3. Fetch FAQs from DB
-        const { data: dbFaqs, error: faqsErr } = await supabase
-          .from("faqs")
-          .select("*")
-          .order("created_at", { ascending: false });
-
-        if (!faqsErr && dbFaqs && dbFaqs.length > 0) {
-          setFaqs(dbFaqs);
-        }
-
-        // 4. Fetch Notifications from DB
-        const { data: dbNotifs, error: notifsErr } = await supabase
-          .from("notifications")
-          .select("*")
-          .order("created_at", { ascending: false });
-
-        if (!notifsErr && dbNotifs) {
-          const mappedNotifs = dbNotifs.map((n) => ({
-            id: n.id,
-            userId: n.user_id,
-            ticketId: n.ticket_id,
-            title: n.title,
-            message: n.message,
-            isRead: n.is_read,
-            createdAt: new Date(n.created_at).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-          }));
-          setNotifications(mappedNotifs);
-        }
-      } catch (err) {
-        console.warn("Supabase initial fetch failed, using fallback data:", err);
-      } finally {
-        setIsLoading(false);
+      if (!error && data) {
+        setProfile({
+          fullName: data.full_name || fallbackName,
+          email: data.email || fallbackEmail,
+          department: data.department || "",
+          phone: data.phone || "",
+          role: data.role || "user",
+        });
+        setAuth((prev) => ({
+          ...prev,
+          role: data.role || prev.role,
+          name: data.full_name || prev.name,
+        }));
       }
+    } catch (err) {
+      console.error("Error fetching user profile:", err);
     }
-
-    loadSupabaseData();
-
-    // Listen to Supabase auth state changes
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (session?.user) {
-          const u = session.user;
-          const r = u.user_metadata?.role || "user";
-          const n = u.user_metadata?.full_name || u.email.split("@")[0];
-          setAuth({
-            isAuthenticated: true,
-            role: r,
-            email: u.email,
-            name: n,
-            id: u.id,
-          });
-        } else if (event === "SIGNED_OUT") {
-          setAuth({
-            isAuthenticated: false,
-            role: "user",
-            email: "",
-            name: "",
-            id: "",
-          });
-        }
-      }
-    );
-
-    return () => {
-      authListener?.subscription?.unsubscribe?.();
-    };
   }, []);
 
-  // Standard Login (works both with Supabase and mock fallback)
-  const login = async (role = "user", email = "", password = "") => {
-    const userRole = role === "admin" ? "admin" : "user";
-    const defaultEmail =
-      email || (userRole === "admin" ? "admin@autoticket.com" : "user@autoticket.com");
-    const defaultName = userRole === "admin" ? "Alex Rivera" : "Demo Customer";
+  // 2. Fetch Tickets
+  const fetchTickets = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from("tickets")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-    // Attempt Supabase sign in if configured and password given
-    if (isSupabaseConfigured && supabase && password) {
+      if (error) throw error;
+
+      if (data) {
+        const formatted = data.map((t) => ({
+          id: t.id,
+          userId: t.user_id,
+          userName: t.user_name || "Anonymous",
+          userEmail: t.user_email || "",
+          title: t.title,
+          description: t.description,
+          status: t.status === "Rejected" ? "Reject" : t.status,
+          createdAt: new Date(t.created_at).toLocaleDateString([], {
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          attachment: t.attachment,
+        }));
+        setTickets(formatted);
+      }
+    } catch (err) {
+      console.error("Error fetching tickets:", err);
+    }
+  }, []);
+
+  // 3. Fetch FAQs
+  const fetchFaqs = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from("faqs")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      if (data) setFaqs(data);
+    } catch (err) {
+      console.error("Error fetching FAQs:", err);
+    }
+  }, []);
+
+  // 4. Fetch Notifications
+  const fetchNotifications = useCallback(async (userId) => {
+    try {
+      let query = supabase
+        .from("notifications")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (userId) {
+        query = query.eq("user_id", userId);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+
+      if (data) {
+        const formatted = data.map((n) => ({
+          id: n.id,
+          userId: n.user_id,
+          ticketId: n.ticket_id,
+          title: n.title,
+          message: n.message,
+          isRead: Boolean(n.is_read),
+          createdAt: new Date(n.created_at).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        }));
+        setNotifications(formatted);
+      }
+    } catch (err) {
+      console.error("Error fetching notifications:", err);
+    }
+  }, []);
+
+  // Initialize session and data on mount
+  useEffect(() => {
+    let isMounted = true;
+
+    async function initialize() {
+      setIsLoading(true);
       try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: defaultEmail,
-          password: password,
-        });
+        // Check active Supabase session
+        const { data: sessionData } = await supabase.auth.getSession();
+        const currentUser = sessionData?.session?.user;
 
-        if (!error && data?.user) {
-          const u = data.user;
-          const r = u.user_metadata?.role || userRole;
-          const n = u.user_metadata?.full_name || defaultName;
+        if (currentUser && isMounted) {
+          const role = currentUser.user_metadata?.role || "user";
+          const name =
+            currentUser.user_metadata?.full_name || currentUser.email?.split("@")[0];
 
           setAuth({
             isAuthenticated: true,
-            role: r,
-            email: u.email,
-            name: n,
-            id: u.id,
+            role,
+            email: currentUser.email || "",
+            name,
+            id: currentUser.id,
           });
-          setProfile((prev) => ({ ...prev, fullName: n, email: u.email, role: r }));
-          return { success: true };
+
+          await fetchProfile(currentUser.id, currentUser.email, name);
+          await fetchNotifications(currentUser.id);
         }
-      } catch (e) {
-        console.warn("Supabase auth failed, fallback to state login:", e);
+
+        // Fetch shared collections
+        await Promise.all([fetchTickets(), fetchFaqs()]);
+      } catch (err) {
+        console.error("Initialization error:", err);
+      } finally {
+        if (isMounted) setIsLoading(false);
       }
     }
 
-    // Graceful fallback session
-    setAuth({
-      isAuthenticated: true,
-      role: userRole,
-      email: defaultEmail,
-      name: defaultName,
-      id: userRole === "admin" ? "ADM-001" : "USR-4309",
-    });
+    initialize();
 
-    setProfile({
-      fullName: defaultName,
-      email: defaultEmail,
-      department: userRole === "admin" ? "Support Engineering" : "Operations",
-      phone: "+1 (555) 234-5678",
-      role: userRole,
-    });
+    // Listen to Supabase Auth changes
+    const {
+      data: { subscription: authSubscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!isMounted) return;
 
-    return { success: true };
-  };
+      if (session?.user) {
+        const u = session.user;
+        const role = u.user_metadata?.role || "user";
+        const name = u.user_metadata?.full_name || u.email?.split("@")[0];
 
-  // Sign up with Supabase
-  const signUp = async (email, password, fullName, role = "user") => {
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              full_name: fullName,
-              role: role,
-            },
-          },
+        setAuth({
+          isAuthenticated: true,
+          role,
+          email: u.email || "",
+          name,
+          id: u.id,
         });
 
-        if (error) throw error;
-
-        // Create profile row
-        if (data?.user) {
-          await supabase.from("profiles").upsert({
-            id: data.user.id,
-            full_name: fullName,
-            email: email,
-            role: role,
-          });
-        }
-      } catch (err) {
-        console.warn("Supabase signUp warning:", err);
+        await fetchProfile(u.id, u.email, name);
+        await fetchNotifications(u.id);
+      } else if (event === "SIGNED_OUT") {
+        setAuth({
+          isAuthenticated: false,
+          role: "user",
+          email: "",
+          name: "",
+          id: "",
+        });
+        setProfile({
+          fullName: "",
+          email: "",
+          department: "",
+          phone: "",
+          role: "user",
+        });
+        setNotifications([]);
       }
+    });
+
+    // Realtime changes channel
+    const realtimeChannel = supabase
+      .channel("app-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "tickets" },
+        () => {
+          fetchTickets();
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "faqs" },
+        () => {
+          fetchFaqs();
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "notifications" },
+        () => {
+          if (auth.id) fetchNotifications(auth.id);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      isMounted = false;
+      authSubscription?.unsubscribe();
+      supabase.removeChannel(realtimeChannel);
+    };
+  }, [fetchTickets, fetchFaqs, fetchNotifications, fetchProfile, auth.id]);
+
+  // Direct Supabase Login
+  const login = async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) return { error };
+
+    const user = data?.user;
+    if (user) {
+      // Fetch profile to get real role
+      const { data: profileRow } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      const userRole = profileRow?.role || user.user_metadata?.role || "user";
+      const userName =
+        profileRow?.full_name ||
+        user.user_metadata?.full_name ||
+        user.email?.split("@")[0];
+
+      setAuth({
+        isAuthenticated: true,
+        role: userRole,
+        email: user.email || "",
+        name: userName,
+        id: user.id,
+      });
+
+      setProfile({
+        fullName: userName,
+        email: user.email || "",
+        department: profileRow?.department || "",
+        phone: profileRow?.phone || "",
+        role: userRole,
+      });
+
+      fetchNotifications(user.id);
+      return { success: true, user, role: userRole };
     }
 
-    // Set authenticated state
-    login(role, email, password);
-    setProfile((prev) => ({ ...prev, fullName, email, role }));
+    return { error: new Error("Authentication failed") };
+  };
+
+  // Direct Supabase Sign Up
+  const signUp = async (email, password, fullName, role = "user") => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+          role,
+        },
+      },
+    });
+
+    if (error) return { error };
+
+    if (data?.user) {
+      // Create user row in public.profiles table
+      await supabase.from("profiles").upsert({
+        id: data.user.id,
+        full_name: fullName,
+        email,
+        role,
+      });
+
+      setAuth({
+        isAuthenticated: true,
+        role,
+        email,
+        name: fullName,
+        id: data.user.id,
+      });
+
+      setProfile({
+        fullName,
+        email,
+        department: "",
+        phone: "",
+        role,
+      });
+
+      return { success: true, user: data.user, role };
+    }
+
     return { success: true };
   };
 
+  // Direct Supabase Logout
   const logout = async () => {
-    if (isSupabaseConfigured && supabase) {
-      try {
-        await supabase.auth.signOut();
-      } catch (err) {
-        console.warn("Supabase sign out error:", err);
-      }
-    }
-
+    await supabase.auth.signOut();
     setAuth({
       isAuthenticated: false,
       role: "user",
@@ -261,194 +355,177 @@ export function AppProvider({ children }) {
       name: "",
       id: "",
     });
+    setProfile({
+      fullName: "",
+      email: "",
+      department: "",
+      phone: "",
+      role: "user",
+    });
   };
 
-  // Profile Update
+  // Update Profile in Supabase
   const updateProfile = async (updatedData) => {
     setProfile((prev) => ({ ...prev, ...updatedData }));
+
     if (updatedData.fullName) {
       setAuth((prev) => ({ ...prev, name: updatedData.fullName }));
     }
 
-    if (isSupabaseConfigured && supabase && auth.id) {
-      try {
-        await supabase.from("profiles").upsert({
-          id: auth.id,
-          full_name: updatedData.fullName || profile.fullName,
-          department: updatedData.department || profile.department,
-          phone: updatedData.phone || profile.phone,
-          updated_at: new Date().toISOString(),
-        });
-      } catch (err) {
-        console.warn("Failed to sync profile to Supabase:", err);
-      }
+    if (auth.id) {
+      await supabase.from("profiles").upsert({
+        id: auth.id,
+        full_name: updatedData.fullName ?? profile.fullName,
+        department: updatedData.department ?? profile.department,
+        phone: updatedData.phone ?? profile.phone,
+        updated_at: new Date().toISOString(),
+      });
     }
   };
 
-  // Add Ticket (Stored in Supabase DB & state)
-  const addTicket = async (ticketData) => {
-    const generatedId =
-      ticketData.id || `TKT-${Math.floor(1000 + Math.random() * 9000)}`;
-    const userId = auth.id || (auth.email ? `USR-${Math.floor(1000 + Math.random() * 9000)}` : "USR-4309");
-    const userName = auth.name || profile.fullName || "Customer User";
-    const userEmail = auth.email || profile.email || "user@autoticket.com";
+  // Add Ticket to Supabase
+  const addTicket = async ({ title, description, attachment = null }) => {
+    const ticketId = `TKT-${Math.floor(1000 + Math.random() * 9000)}`;
+    const userId = auth.id || `USR-${Date.now()}`;
+    const userName = auth.name || profile.fullName || "User";
+    const userEmail = auth.email || profile.email || "";
 
     const newTicket = {
-      id: generatedId,
-      userId: userId,
-      userName: userName,
-      userEmail: userEmail,
-      title: ticketData.title,
-      description: ticketData.description,
-      status: ticketData.status || "Pending",
-      createdAt:
-        ticketData.createdAt ||
-        new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      attachment: ticketData.attachment || null,
+      id: ticketId,
+      user_id: userId,
+      user_name: userName,
+      user_email: userEmail,
+      title,
+      description,
+      status: "Pending",
+      attachment: typeof attachment === "string" ? attachment : attachment?.previewUrl || null,
     };
 
-    // Reactively update local state
-    setTickets((prev) => [newTicket, ...prev]);
+    // Optimistic state update
+    setTickets((prev) => [
+      {
+        id: newTicket.id,
+        userId: newTicket.user_id,
+        userName: newTicket.user_name,
+        userEmail: newTicket.user_email,
+        title: newTicket.title,
+        description: newTicket.description,
+        status: newTicket.status,
+        createdAt: "Just now",
+        attachment: newTicket.attachment,
+      },
+      ...prev,
+    ]);
 
-    // Persist to Supabase if configured
-    if (isSupabaseConfigured && supabase) {
-      try {
-        await supabase.from("tickets").insert({
-          id: newTicket.id,
-          user_id: newTicket.userId,
-          user_name: newTicket.userName,
-          user_email: newTicket.userEmail,
-          title: newTicket.title,
-          description: newTicket.description,
-          status: newTicket.status,
-          attachment: newTicket.attachment,
-        });
-      } catch (err) {
-        console.warn("Failed to insert ticket into Supabase:", err);
-      }
+    const { data, error } = await supabase
+      .from("tickets")
+      .insert(newTicket)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error creating ticket in Supabase:", error);
+      throw error;
     }
 
-    return newTicket;
+    return data || newTicket;
   };
 
-  // Update Ticket Status & Generate Notification for User
+  // Update Ticket Status & Send Notification
   const updateTicketStatus = async (ticketId, newStatus) => {
-    const normalized = newStatus === "Rejected" ? "Reject" : newStatus;
+    const status = newStatus === "Rejected" ? "Reject" : newStatus;
+    const target = tickets.find((t) => t.id === ticketId);
 
-    // Find the target ticket to notify user
-    const targetTicket = tickets.find((t) => t.id === ticketId);
-
+    // Optimistic ticket update
     setTickets((prev) =>
-      prev.map((t) => (t.id === ticketId ? { ...t, status: normalized } : t))
+      prev.map((t) => (t.id === ticketId ? { ...t, status } : t))
     );
 
-    // Create Notification Record for User
-    if (targetTicket) {
-      const newNotif = {
-        id: `notif-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        userId: targetTicket.userId,
-        ticketId: targetTicket.id,
-        title: `Ticket #${targetTicket.id} Status Updated`,
-        message: `Your ticket "${targetTicket.title}" has been updated to ${normalized}.`,
-        isRead: false,
-        createdAt: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
+    // Update in Supabase
+    await supabase
+      .from("tickets")
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq("id", ticketId);
+
+    // Insert Notification for user in Supabase
+    if (target) {
+      const notifPayload = {
+        id: `notif-${Date.now()}`,
+        user_id: target.userId,
+        ticket_id: ticketId,
+        title: `Ticket #${ticketId} Updated`,
+        message: `Your ticket "${target.title}" status is now ${status}.`,
+        is_read: false,
       };
 
-      setNotifications((prev) => [newNotif, ...prev]);
+      setNotifications((prev) => [
+        {
+          id: notifPayload.id,
+          userId: notifPayload.user_id,
+          ticketId: notifPayload.ticket_id,
+          title: notifPayload.title,
+          message: notifPayload.message,
+          isRead: false,
+          createdAt: "Just now",
+        },
+        ...prev,
+      ]);
 
-      // Sync notification to Supabase
-      if (isSupabaseConfigured && supabase) {
-        try {
-          await supabase.from("notifications").insert({
-            id: newNotif.id,
-            user_id: newNotif.userId,
-            ticket_id: newNotif.ticketId,
-            title: newNotif.title,
-            message: newNotif.message,
-            is_read: false,
-          });
-        } catch (err) {
-          console.warn("Failed to persist notification:", err);
-        }
-      }
-    }
-
-    // Sync ticket update to Supabase
-    if (isSupabaseConfigured && supabase) {
-      try {
-        await supabase
-          .from("tickets")
-          .update({
-            status: normalized,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", ticketId);
-      } catch (err) {
-        console.warn("Failed to update ticket in Supabase:", err);
-      }
+      await supabase.from("notifications").insert(notifPayload);
     }
   };
 
-  // Notification management
-  const markNotificationRead = (notifId) => {
+  // Notifications Helpers
+  const markNotificationRead = async (notifId) => {
     setNotifications((prev) =>
       prev.map((n) => (n.id === notifId ? { ...n, isRead: true } : n))
     );
+    await supabase
+      .from("notifications")
+      .update({ is_read: true })
+      .eq("id", notifId);
+  };
 
-    if (isSupabaseConfigured && supabase) {
-      supabase.from("notifications").update({ is_read: true }).eq("id", notifId).catch(console.warn);
+  const clearAllNotifications = async () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    if (auth.id) {
+      await supabase
+        .from("notifications")
+        .update({ is_read: true })
+        .eq("user_id", auth.id);
     }
   };
 
-  const clearAllNotifications = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-  };
-
-  // Add FAQ (Admin feature, stored in DB)
+  // FAQ CRUD in Supabase
   const addFaq = async ({ question, answer, category = "General" }) => {
+    const faqId = `faq-${Date.now()}`;
     const newFaq = {
-      id: `faq-${Date.now()}`,
+      id: faqId,
       question,
       answer,
       category,
-      createdAt: new Date().toISOString(),
+      created_by: auth.email || "Admin",
     };
 
     setFaqs((prev) => [newFaq, ...prev]);
 
-    if (isSupabaseConfigured && supabase) {
-      try {
-        await supabase.from("faqs").insert({
-          id: newFaq.id,
-          question: newFaq.question,
-          answer: newFaq.answer,
-          category: newFaq.category,
-          created_by: auth.email || "admin@autoticket.com",
-        });
-      } catch (err) {
-        console.warn("Failed to insert FAQ into Supabase:", err);
-      }
+    const { data, error } = await supabase
+      .from("faqs")
+      .insert(newFaq)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error inserting FAQ:", error);
+      throw error;
     }
 
-    return newFaq;
+    return data || newFaq;
   };
 
   const deleteFaq = async (faqId) => {
     setFaqs((prev) => prev.filter((f) => f.id !== faqId));
-
-    if (isSupabaseConfigured && supabase) {
-      try {
-        await supabase.from("faqs").delete().eq("id", faqId);
-      } catch (err) {
-        console.warn("Failed to delete FAQ from Supabase:", err);
-      }
-    }
+    await supabase.from("faqs").delete().eq("id", faqId);
   };
 
   return (
@@ -470,7 +547,6 @@ export function AppProvider({ children }) {
         markNotificationRead,
         clearAllNotifications,
         isLoading,
-        isSupabaseConfigured,
       }}
     >
       {children}

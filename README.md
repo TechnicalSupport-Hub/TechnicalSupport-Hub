@@ -25,11 +25,11 @@ The application provides an integrated experience featuring customer self-servic
 ## Tech Stack & Architecture
 
 - **Frontend**: React 19, Vite 8
-- **Database & Auth**: Supabase (`@supabase/supabase-js`) with transparent offline/mock fallback
+- **Database & Auth**: Supabase (`@supabase/supabase-js`) PostgreSQL & Supabase Auth
 - **Routing**: `react-router-dom` (v7)
 - **Styling**: Tailwind CSS (strict `rem`-based utility classes, no inline styles, no arbitrary pixel brackets)
 - **Icons**: Lucide React
-- **State Layer**: React Context (`AppContext`) with optimistic local updates and remote Supabase PostgreSQL syncing
+- **State Layer**: React Context (`AppContext`) with direct Supabase PostgreSQL and Realtime syncing
 
 ---
 
@@ -40,7 +40,7 @@ The application provides an integrated experience featuring customer self-servic
 npm install
 ```
 
-### 2. Configure Environment (Optional for Supabase)
+### 2. Configure Environment
 Copy `.env.example` to `.env`:
 ```bash
 cp .env.example .env
@@ -50,7 +50,6 @@ Provide your Supabase URL and public Anon Key:
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key-here
 ```
-> **Note**: The application has an embedded fallback layer. If `.env` keys are not yet configured, the app runs smoothly in offline mode with sample tickets, clustering, and state management.
 
 ### 3. Run Development Server
 ```bash

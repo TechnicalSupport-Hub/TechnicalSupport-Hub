@@ -1,79 +1,64 @@
 /**
- * Utility to cluster tickets by issue similarity and compute frequency across unique users.
- * This empowers Admins to identify recurring customer problems and convert them directly into FAQs.
+ * Simple, fundamental utility to group tickets by common issue themes
+ * and calculate the number of tickets and unique users affected.
  */
 
-const STOP_WORDS = new Set([
-  'a', 'an', 'the', 'and', 'or', 'in', 'on', 'at', 'to', 'for', 'with', 'from',
-  'by', 'about', 'is', 'was', 'are', 'were', 'be', 'been', 'being', 'have', 'has',
-  'had', 'do', 'does', 'did', 'not', 'no', 'of', 'during', 'when', 'my', 'we',
-  'our', 'user', 'users', 'issue', 'problem', 'unable', 'failed', 'failing'
-]);
-
-function extractKeywords(text = '') {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, ' ')
-    .split(/\s+/)
-    .filter((word) => word.length > 2 && !STOP_WORDS.has(word));
-}
+// Common support problem topics to check against
+const COMMON_TOPICS = [
+  { key: 'export', title: 'Analytics & CSV Export Timeouts' },
+  { key: 'database', title: 'Database Replica Latency & Query Spikes' },
+  { key: 'sso', title: 'SSO & Okta Authentication Loops' },
+  { key: 'ssl', title: 'SSL Certificate Renewal Failures' },
+  { key: 'payment', title: 'Payment & Webhook Signature Mismatches' },
+  { key: 'theme', title: 'Mobile Viewport System Theme Overrides' },
+];
 
 export function clusterTicketsByIssue(tickets = []) {
   if (!tickets || tickets.length === 0) return [];
 
   const clusters = [];
+  const processedTicketIds = new Set();
 
-  tickets.forEach((ticket) => {
-    const title = ticket.title || '';
-    const desc = ticket.description || '';
-    const words = extractKeywords(`${title} ${desc}`);
-    const userId = ticket.userId || ticket.userEmail || 'anonymous';
+  // 1. Group tickets matching known recurring topics
+  COMMON_TOPICS.forEach((topic) => {
+    const matchingTickets = tickets.filter((ticket) => {
+      const text = `${ticket.title} ${ticket.description}`.toLowerCase();
+      return text.includes(topic.key);
+    });
 
-    let matchedCluster = null;
+    if (matchingTickets.length > 0) {
+      // Find unique users in this group
+      const uniqueUsers = new Set(matchingTickets.map((t) => t.userId || t.userEmail));
 
-    // Check if this ticket shares significant keywords with an existing cluster
-    for (const cluster of clusters) {
-      const intersection = words.filter((w) => cluster.keywords.has(w));
-      // If 2 or more meaningful keywords match or >35% overlap
-      if (
-        intersection.length >= 2 ||
-        (words.length > 0 && intersection.length / Math.min(words.length, cluster.keywords.size) >= 0.4)
-      ) {
-        matchedCluster = cluster;
-        break;
-      }
-    }
+      matchingTickets.forEach((t) => processedTicketIds.add(t.id));
 
-    if (matchedCluster) {
-      matchedCluster.tickets.push(ticket);
-      matchedCluster.uniqueUsers.add(userId);
-      words.forEach((w) => matchedCluster.keywords.add(w));
-    } else {
       clusters.push({
-        id: `cluster-${ticket.id}`,
-        title: title,
-        keywords: new Set(words),
-        tickets: [ticket],
-        uniqueUsers: new Set([userId]),
-        sampleDescription: desc,
+        id: `topic-${topic.key}`,
+        title: topic.title,
+        ticketCount: matchingTickets.length,
+        uniqueUserCount: uniqueUsers.size,
+        tickets: matchingTickets,
+        suggestedQuestion: `How do I resolve ${topic.title.toLowerCase()}?`,
+        suggestedAnswer: matchingTickets[0]?.description || 'Follow standard resolution steps.',
       });
     }
   });
 
-  // Format and sort clusters by unique user impact descending
-  return clusters
-    .map((c) => ({
-      id: c.id,
-      title: c.title,
-      ticketCount: c.tickets.length,
-      uniqueUserCount: c.uniqueUsers.size,
-      tickets: c.tickets,
-      suggestedQuestion: c.title.endsWith('?')
-        ? c.title
-        : `How to resolve ${c.title.toLowerCase()}?`,
-      suggestedAnswer:
-        c.sampleDescription ||
-        'Our technical team has analyzed this recurring issue. Please follow standard troubleshooting procedures or verify environment configuration.',
-    }))
-    .sort((a, b) => b.uniqueUserCount - a.uniqueUserCount || b.ticketCount - a.ticketCount);
+  // 2. Add any remaining tickets that didn't match the predefined topics
+  const remainingTickets = tickets.filter((t) => !processedTicketIds.has(t.id));
+  if (remainingTickets.length > 0) {
+    const uniqueUsers = new Set(remainingTickets.map((t) => t.userId || t.userEmail));
+    clusters.push({
+      id: 'topic-other',
+      title: 'General Inquiries & Other Reports',
+      ticketCount: remainingTickets.length,
+      uniqueUserCount: uniqueUsers.size,
+      tickets: remainingTickets,
+      suggestedQuestion: 'How to handle general technical inquiries?',
+      suggestedAnswer: 'Please review general support guidelines.',
+    });
+  }
+
+  // Sort by highest unique users first
+  return clusters.sort((a, b) => b.uniqueUserCount - a.uniqueUserCount);
 }

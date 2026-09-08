@@ -38,7 +38,6 @@ export default function CreateTicket({ onSubmitTicket, onCancel }) {
     setErrors((prev) => ({ ...prev, file: null }));
 
     const reader = new FileReader();
-
     reader.onload = (e) => {
       setAttachment({
         name: file.name,
@@ -46,41 +45,30 @@ export default function CreateTicket({ onSubmitTicket, onCancel }) {
         previewUrl: e.target.result,
       });
     };
-
     reader.readAsDataURL(file);
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
     setDragActive(false);
-
     const file = e.dataTransfer.files?.[0];
-
-    if (file) {
-      handleFile(file);
-    }
+    if (file) handleFile(file);
   };
 
   const removeAttachment = () => {
     setAttachment(null);
-
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const newErrors = {};
-
-    if (!title.trim()) {
-      newErrors.title = "Please provide an issue title";
-    }
-
-    if (!description.trim()) {
+    if (!title.trim()) newErrors.title = "Please provide an issue title";
+    if (!description.trim())
       newErrors.description = "Please describe the issue in detail";
-    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -88,33 +76,26 @@ export default function CreateTicket({ onSubmitTicket, onCancel }) {
     }
 
     setIsSubmitting(true);
+    setErrors({});
 
-    setTimeout(() => {
-      setIsSubmitting(false);
-
-      const generatedId = `TKT-${Math.floor(
-        1000 + Math.random() * 9000
-      )}`;
-
+    try {
       const ticketPayload = {
-        id: generatedId,
-        title,
-        description,
-        attachment,
-        status: "Pending",
-        createdAt: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
+        title: title.trim(),
+        description: description.trim(),
+        attachment: attachment?.previewUrl || null,
       };
 
       if (onSubmitTicket) {
-        onSubmitTicket(ticketPayload);
+        await onSubmitTicket(ticketPayload);
       } else {
-        addTicket(ticketPayload);
+        await addTicket(ticketPayload);
         navigate("/faq");
       }
-    }, 500);
+    } catch (err) {
+      setErrors({ form: err.message || "Failed to submit ticket to database." });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -134,10 +115,8 @@ export default function CreateTicket({ onSubmitTicket, onCancel }) {
             <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
               Raise a Complaint
             </h1>
-
             <p className="mt-1.5 max-w-2xl text-sm leading-6 text-gray-500">
-              Provide the details of your issue so our support team can assist
-              you.
+              Provide the details of your issue so our support team can assist you.
             </p>
           </div>
         </div>
@@ -146,6 +125,12 @@ export default function CreateTicket({ onSubmitTicket, onCancel }) {
           onSubmit={handleSubmit}
           className="rounded-2xl border border-gray-200 bg-white p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)] sm:p-7"
         >
+          {errors.form && (
+            <div className="mb-5 rounded-lg bg-red-50 border border-red-200 p-3 text-xs text-red-600">
+              {errors.form}
+            </div>
+          )}
+
           <div className="space-y-5">
             <Input
               id="ticket-title"
@@ -157,10 +142,7 @@ export default function CreateTicket({ onSubmitTicket, onCancel }) {
               error={errors.title}
               onChange={(e) => {
                 setTitle(e.target.value);
-
-                if (errors.title) {
-                  setErrors({ ...errors, title: null });
-                }
+                if (errors.title) setErrors((prev) => ({ ...prev, title: null }));
               }}
             />
 
@@ -169,8 +151,7 @@ export default function CreateTicket({ onSubmitTicket, onCancel }) {
                 htmlFor="ticket-desc"
                 className="block text-sm font-medium text-gray-700"
               >
-                Issue Description{" "}
-                <span className="text-red-500">*</span>
+                Issue Description <span className="text-red-500">*</span>
               </label>
 
               <textarea
@@ -179,10 +160,8 @@ export default function CreateTicket({ onSubmitTicket, onCancel }) {
                 value={description}
                 onChange={(e) => {
                   setDescription(e.target.value);
-
-                  if (errors.description) {
-                    setErrors({ ...errors, description: null });
-                  }
+                  if (errors.description)
+                    setErrors((prev) => ({ ...prev, description: null }));
                 }}
                 placeholder="Explain what happened, steps to reproduce, or any relevant details..."
                 required
@@ -194,18 +173,14 @@ export default function CreateTicket({ onSubmitTicket, onCancel }) {
               />
 
               {errors.description && (
-                <p className="text-xs text-red-500">
-                  {errors.description}
-                </p>
+                <p className="text-xs text-red-500">{errors.description}</p>
               )}
             </div>
 
             <div className="space-y-1.5 text-left">
               <label className="block text-sm font-medium text-gray-700">
                 Attachment{" "}
-                <span className="font-normal text-gray-400">
-                  (Optional)
-                </span>
+                <span className="font-normal text-gray-400">(Optional)</span>
               </label>
 
               {!attachment ? (
@@ -228,9 +203,7 @@ export default function CreateTicket({ onSubmitTicket, onCancel }) {
                     type="file"
                     accept="image/png, image/jpeg, image/jpg"
                     className="hidden"
-                    onChange={(e) =>
-                      handleFile(e.target.files?.[0])
-                    }
+                    onChange={(e) => handleFile(e.target.files?.[0])}
                   />
 
                   <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[#0084ff]/10 text-[#0084ff]">
@@ -239,9 +212,7 @@ export default function CreateTicket({ onSubmitTicket, onCancel }) {
 
                   <p className="text-sm font-medium text-gray-700">
                     Drop an image here or{" "}
-                    <span className="text-[#0084ff]">
-                      browse files
-                    </span>
+                    <span className="text-[#0084ff]">browse files</span>
                   </p>
 
                   <p className="mt-1 text-xs text-gray-400">
@@ -261,7 +232,6 @@ export default function CreateTicket({ onSubmitTicket, onCancel }) {
                       <p className="truncate text-sm font-medium text-gray-800">
                         {attachment.name}
                       </p>
-
                       <p className="mt-0.5 text-xs text-gray-400">
                         {attachment.size}
                       </p>

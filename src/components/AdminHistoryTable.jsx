@@ -1,49 +1,49 @@
-import { useState, useMemo } from 'react';
-import { 
-  Search, 
-  CheckCircle2, 
-  XCircle, 
-  AlertCircle, 
-  Eye, 
+import { useState, useMemo } from "react";
+import {
+  Search,
+  CheckCircle2,
+  XCircle,
+  Eye,
   X,
-  History
-} from 'lucide-react';
+  History,
+  Inbox,
+} from "lucide-react";
 
-const HISTORY_FILTER_TABS = [
-  { id: 'All', label: 'All' },
-  { id: 'Resolved', label: 'Resolved (Success)', countKey: 'Resolved' },
-  { id: 'Reject', label: 'Rejected (Fail)', countKey: 'Reject' },
-  { id: 'Processing', label: 'Processing', countKey: 'Processing' },
+const HISTORY_TABS = [
+  { id: "All", label: "All History" },
+  { id: "Resolved", label: "Resolved (Success)" },
+  { id: "Reject", label: "Rejected" },
 ];
 
-export default function AdminHistoryTable({
-  tickets = [],
-  onViewDetails,
-}) {
-  const [activeTab, setActiveTab] = useState('All');
-  const [searchQuery, setSearchQuery] = useState('');
+export default function AdminHistoryTable({ tickets = [], onViewDetails }) {
+  const [activeTab, setActiveTab] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Count helper
-  const counts = useMemo(() => {
-    return tickets.reduce((acc, t) => {
-      const norm = t.status === 'Rejected' ? 'Reject' : t.status;
-      acc[norm] = (acc[norm] || 0) + 1;
-      return acc;
-    }, {});
+  // Only consider tickets that are Resolved or Reject
+  const historyTickets = useMemo(() => {
+    return tickets.filter(
+      (t) => t.status === "Resolved" || t.status === "Reject" || t.status === "Rejected"
+    );
   }, [tickets]);
 
-  // Filter logic
-  const filteredTickets = useMemo(() => {
-    return tickets.filter((t) => {
-      const norm = t.status === 'Rejected' ? 'Reject' : t.status;
+  // Tab counts
+  const resolvedCount = historyTickets.filter((t) => t.status === "Resolved").length;
+  const rejectCount = historyTickets.filter(
+    (t) => t.status === "Reject" || t.status === "Rejected"
+  ).length;
 
-      if (activeTab !== 'All' && norm !== activeTab) {
+  // Filtered rows
+  const filteredTickets = useMemo(() => {
+    return historyTickets.filter((t) => {
+      const normalizedStatus = t.status === "Rejected" ? "Reject" : t.status;
+
+      if (activeTab !== "All" && normalizedStatus !== activeTab) {
         return false;
       }
 
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
-        const matchId = t.id.toLowerCase().includes(q);
+        const matchId = t.id?.toLowerCase().includes(q);
         const matchUser = t.userId?.toLowerCase().includes(q);
         const matchTitle = t.title?.toLowerCase().includes(q);
         return matchId || matchUser || matchTitle;
@@ -51,11 +51,11 @@ export default function AdminHistoryTable({
 
       return true;
     });
-  }, [tickets, activeTab, searchQuery]);
+  }, [historyTickets, activeTab, searchQuery]);
 
   return (
     <div className="flex-1 flex flex-col p-4 sm:p-6 lg:p-8 overflow-y-auto text-left">
-      {/* Header Banner with Dark Black & Blue Gradient Theme */}
+      {/* Header Banner */}
       <section className="relative mb-6 overflow-hidden rounded-2xl bg-gray-950 px-6 py-6 sm:px-8 sm:py-7">
         <div className="absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#0084ff]/20 blur-3xl" />
 
@@ -76,7 +76,11 @@ export default function AdminHistoryTable({
 
           <div className="self-start sm:self-auto">
             <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-300 bg-white/10 border border-white/10 px-3.5 py-1.5 rounded-xl backdrop-blur-xs">
-              Showing: <span className="text-[#0084ff] font-mono font-bold">{filteredTickets.length}</span> records
+              Showing:{" "}
+              <span className="text-[#0084ff] font-mono font-bold">
+                {filteredTickets.length}
+              </span>{" "}
+              records
             </span>
           </div>
         </div>
@@ -84,7 +88,6 @@ export default function AdminHistoryTable({
 
       {/* Search and Tabs Row */}
       <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-200">
-        {/* Search bar */}
         <div className="relative w-full lg:w-80">
           <Search
             size={16}
@@ -100,7 +103,7 @@ export default function AdminHistoryTable({
           {searchQuery && (
             <button
               type="button"
-              onClick={() => setSearchQuery('')}
+              onClick={() => setSearchQuery("")}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
             >
               <X size={15} />
@@ -108,11 +111,16 @@ export default function AdminHistoryTable({
           )}
         </div>
 
-        {/* Filterable Tabs */}
+        {/* Tabs */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0">
-          {HISTORY_FILTER_TABS.map((tab) => {
+          {HISTORY_TABS.map((tab) => {
             const isSelected = activeTab === tab.id;
-            const count = tab.id === 'All' ? tickets.length : (counts[tab.countKey] || 0);
+            const count =
+              tab.id === "All"
+                ? historyTickets.length
+                : tab.id === "Resolved"
+                ? resolvedCount
+                : rejectCount;
 
             return (
               <button
@@ -121,18 +129,20 @@ export default function AdminHistoryTable({
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer whitespace-nowrap ${
                   isSelected
-                    ? tab.id === 'Resolved'
-                      ? 'bg-emerald-600 text-white shadow-sm'
-                      : tab.id === 'Reject'
-                      ? 'bg-rose-600 text-white shadow-sm'
-                      : 'bg-[#0084ff] text-white shadow-sm'
-                    : 'bg-white text-gray-600 hover:text-gray-900 hover:bg-gray-50 border border-gray-200'
+                    ? tab.id === "Resolved"
+                      ? "bg-emerald-600 text-white shadow-sm"
+                      : tab.id === "Reject"
+                      ? "bg-rose-600 text-white shadow-sm"
+                      : "bg-[#0084ff] text-white shadow-sm"
+                    : "bg-white text-gray-600 hover:text-gray-900 hover:bg-gray-50 border border-gray-200"
                 }`}
               >
                 <span>{tab.label}</span>
                 <span
                   className={`text-xs font-mono font-bold px-2 py-0.5 rounded-full ${
-                    isSelected ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-700'
+                    isSelected
+                      ? "bg-white/20 text-white"
+                      : "bg-gray-200 text-gray-700"
                   }`}
                 >
                   {count}
@@ -143,7 +153,7 @@ export default function AdminHistoryTable({
         </div>
       </div>
 
-      {/* Clean Light Table of Tickets */}
+      {/* Table */}
       <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
@@ -160,29 +170,23 @@ export default function AdminHistoryTable({
             <tbody className="divide-y divide-gray-100">
               {filteredTickets.length > 0 ? (
                 filteredTickets.map((t) => {
-                  const normStatus = t.status === 'Rejected' ? 'Reject' : t.status;
-                  const isResolved = normStatus === 'Resolved';
-                  const isReject = normStatus === 'Reject';
-                  const isProcessing = normStatus === 'Processing';
+                  const isResolved = t.status === "Resolved";
 
                   return (
                     <tr
                       key={t.id}
                       className="hover:bg-gray-50 transition-colors group"
                     >
-                      {/* Ticket ID */}
                       <td className="py-4 px-5 font-mono text-sm sm:text-base font-bold text-[#0084ff] whitespace-nowrap">
                         #{t.id}
                       </td>
 
-                      {/* User ID */}
                       <td className="py-4 px-5 whitespace-nowrap">
                         <span className="font-mono text-xs sm:text-sm font-medium text-gray-700 bg-gray-100 px-2.5 py-1 rounded-lg border border-gray-200">
                           {t.userId}
                         </span>
                       </td>
 
-                      {/* Issue Title (Clean, Bold, No description) */}
                       <td className="py-4 px-5">
                         <div
                           className="font-bold text-sm sm:text-base text-gray-900 line-clamp-1 group-hover:text-[#0084ff] transition-colors"
@@ -192,34 +196,20 @@ export default function AdminHistoryTable({
                         </div>
                       </td>
 
-                      {/* Status Badge */}
                       <td className="py-4 px-5 whitespace-nowrap">
-                        {isResolved && (
+                        {isResolved ? (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                             <CheckCircle2 size={14} />
                             <span>Resolved</span>
                           </span>
-                        )}
-                        {isReject && (
+                        ) : (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-rose-50 text-rose-700 border border-rose-200">
                             <XCircle size={14} />
                             <span>Rejected</span>
                           </span>
                         )}
-                        {isProcessing && (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                            <AlertCircle size={14} />
-                            <span>Processing</span>
-                          </span>
-                        )}
-                        {!isResolved && !isReject && !isProcessing && (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                            <span>{t.status}</span>
-                          </span>
-                        )}
                       </td>
 
-                      {/* Action */}
                       <td className="py-4 px-5 text-right whitespace-nowrap">
                         <button
                           type="button"
@@ -236,7 +226,8 @@ export default function AdminHistoryTable({
               ) : (
                 <tr>
                   <td colSpan={5} className="py-12 text-center text-sm text-gray-400">
-                    No tickets found matching the filter criteria.
+                    <Inbox size={24} className="mx-auto mb-2 text-gray-300" />
+                    No historical tickets found.
                   </td>
                 </tr>
               )}

@@ -7,76 +7,52 @@ export default function Login() {
   const navigate = useNavigate();
   const { login } = useApp();
 
-  const [role, setRole] = useState("user"); // 'user' | 'admin'
-  const [email, setEmail] = useState("user@autoticket.com");
-  const [password, setPassword] = useState("password123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleRoleChange = (newRole) => {
-    setRole(newRole);
-    if (newRole === "admin") {
-      setEmail("admin@autoticket.com");
-    } else {
-      setEmail("user@autoticket.com");
-    }
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Determine effective role: based on toggle or email hint
-    const effectiveRole =
-      role === "admin" || email.toLowerCase().includes("admin")
-        ? "admin"
-        : "user";
+    setError("");
+    setIsLoading(true);
 
-    login(effectiveRole, email);
+    try {
+      const res = await login(email.trim(), password);
 
-    if (effectiveRole === "admin") {
-      navigate("/admin");
-    } else {
-      navigate("/faq");
+      if (res.error) {
+        setError(res.error.message || "Invalid credentials. Please try again.");
+        return;
+      }
+
+      // Navigate based on user's role from Supabase
+      if (res.role === "admin" || email.toLowerCase().includes("admin")) {
+        navigate("/admin");
+      } else {
+        navigate("/faq");
+      }
+    } catch (err) {
+      setError(err.message || "An unexpected error occurred during login.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 text-left">
-      {/* Role Toggle Selector */}
-      <div className="space-y-1.5">
-        <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500">
-          Account Role
-        </label>
-        <div className="flex rounded-lg border border-gray-200 bg-gray-50 p-1">
-          <button
-            type="button"
-            onClick={() => handleRoleChange("user")}
-            className={`w-1/2 rounded-md py-1.5 text-xs font-medium transition-colors ${
-              role === "user"
-                ? "bg-[#0084ff] text-white shadow-sm ring-1 ring-gray-200"
-                : "text-gray-500 hover:text-gray-900"
-            }`}
-          >
-            User Portal
-          </button>
-          <button
-            type="button"
-            onClick={() => handleRoleChange("admin")}
-            className={`w-1/2 rounded-md py-1.5 text-xs font-medium transition-colors ${
-              role === "admin"
-                ? "bg-[#0084ff] text-white shadow-sm ring-1 ring-gray-200"
-                : "text-gray-500 hover:text-gray-900"
-            }`}
-          >
-            Admin Portal
-          </button>
+      {error && (
+        <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-xs text-red-600">
+          {error}
         </div>
-      </div>
+      )}
 
       <Input
         id="login-email"
-        label="Email"
+        label="Email Address"
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        placeholder="name@company.com"
+        placeholder="name@example.com"
         required
       />
 
@@ -90,8 +66,8 @@ export default function Login() {
         required
       />
 
-      <Button type="submit" fullWidth>
-        Sign In as {role === "admin" ? "Admin" : "User"}
+      <Button type="submit" fullWidth isLoading={isLoading}>
+        Sign In with Supabase
       </Button>
     </form>
   );
