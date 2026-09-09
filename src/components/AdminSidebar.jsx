@@ -23,18 +23,6 @@ export default function AdminSidebar({
     <aside className="w-full lg:w-72 shrink-0 flex flex-col justify-between p-5 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 text-left">
       {/* Top: Profile Section */}
       <div className="space-y-6">
-        {/* Brand Bar */}
-        <div className="flex items-center gap-3 pb-4 border-b border-gray-200">
-          <div className="w-9 h-9 rounded-xl bg-[#0084ff] flex items-center justify-center text-white shadow-sm">
-            <Ticket size={18} />
-          </div>
-          <div>
-            <span className="text-base font-bold text-gray-900 tracking-tight block">
-              AutoTicket
-            </span>
-            <span className="text-xs font-mono text-gray-500 font-semibold">Admin Desk</span>
-          </div>
-        </div>
 
         {/* Admin Profile Box */}
         <div className="p-3.5 rounded-2xl bg-gray-50 border border-gray-200 flex items-center gap-3.5">
@@ -169,17 +157,6 @@ export default function AdminSidebar({
 
       {/* Bottom Actions */}
       <div className="pt-6 mt-6 border-t border-gray-200 space-y-2.5">
-        {onSwitchToUserPortal && (
-          <button
-            type="button"
-            onClick={onSwitchToUserPortal}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-colors cursor-pointer"
-          >
-            <ExternalLink size={15} />
-            <span>Switch to User Portal</span>
-          </button>
-        )}
-
         <button
           type="button"
           onClick={onSignOut}

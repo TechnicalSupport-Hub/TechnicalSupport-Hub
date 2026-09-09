@@ -59,7 +59,7 @@ export default function NotebookTicketList({
           <div className="self-start sm:self-auto">
             <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-300 bg-white/10 border border-white/10 px-3.5 py-1.5 rounded-xl backdrop-blur-xs">
               Total Queue:{" "}
-              <span className="text-[#0084ff] font-mono font-bold">
+              <span className="pt-0.5 text-[#0084ff] font-mono font-bold">
                 {filteredTickets.length}
               </span>
             </span>

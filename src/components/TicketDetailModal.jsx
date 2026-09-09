@@ -93,11 +93,11 @@ export default function TicketDetailModal({
           </div>
 
           {/* Issue Title */}
-          <div>
+          <div > 
             <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1.5">
               Issue Title
             </span>
-            <h3 className="text-xl font-extrabold text-gray-900 leading-snug">
+            <h3 className="p-4 rounded-xl bg-gray-50 border border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 text-xl font-extrabold text-gray-900 leading-snug">
               {ticket.title}
             </h3>
           </div>
@@ -107,7 +107,7 @@ export default function TicketDetailModal({
             <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">
               Full Description
             </span>
-            <div className="p-4.5 rounded-xl bg-gray-50 border border-gray-200 text-sm sm:text-base text-gray-800 leading-relaxed whitespace-pre-line">
+            <div className="p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm sm:text-base text-gray-800 leading-relaxed whitespace-pre-line">
               {ticket.description}
             </div>
           </div>
@@ -124,7 +124,7 @@ export default function TicketDetailModal({
                   <img
                     src={attachmentUrl}
                     alt="Attachment screenshot"
-                    className="w-16 h-16 object-cover rounded-lg border border-gray-200 shrink-0"
+                    className="w-16 h-16 object-contain rounded-lg border border-gray-200 shrink-0"
                   />
                   <div>
                     <h5 className="text-sm font-bold text-gray-900">
@@ -135,19 +135,9 @@ export default function TicketDetailModal({
                     </p>
                   </div>
                 </div>
-
-                <a
-                  href={attachmentUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold bg-white hover:bg-gray-100 text-gray-900 border border-gray-200 transition-colors"
-                >
-                  <Download size={15} />
-                  <span>View Full Image</span>
-                </a>
               </div>
             ) : (
-              <div className="p-4.5 rounded-xl bg-gray-50 border border-dashed border-gray-200 text-center text-sm text-gray-400 flex items-center justify-center gap-2">
+              <div className="p-4 rounded-xl bg-gray-50 border border-dashed border-gray-200 text-center text-sm text-gray-400 flex items-center justify-center gap-2">
                 <Paperclip size={16} />
                 <span>No attachments uploaded with this ticket.</span>
               </div>
@@ -155,7 +145,7 @@ export default function TicketDetailModal({
           </div>
 
           {/* Update Status Quick Action */}
-          <div className="p-4.5 rounded-xl bg-gray-50 border border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+          <div className="p-4 rounded-xl bg-gray-50 border border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
             <div>
               <span className="text-sm font-bold text-gray-900 block">
                 Update Ticket Status

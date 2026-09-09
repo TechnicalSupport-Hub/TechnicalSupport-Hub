@@ -30,7 +30,7 @@ export default function AdminIssueClustering({ tickets = [], onConvertToFaq }) {
 
           <div className="self-start sm:self-auto">
             <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-300 bg-white/10 border border-white/10 px-3.5 py-1.5 rounded-xl backdrop-blur-xs">
-              Discovered Clusters: <span className="text-[#0084ff] font-mono font-bold">{clusters.length}</span>
+              Discovered Clusters: <span className="pt-0.5 text-[#0084ff] font-mono font-bold">{clusters.length}</span>
             </span>
           </div>
         </div>
