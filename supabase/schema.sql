@@ -25,7 +25,8 @@ CREATE POLICY "Allow public read access to profiles"
 
 CREATE POLICY "Allow users to insert and update their own profile"
   ON public.profiles FOR ALL
-  USING (auth.uid() = id);
+  USING (auth.uid() = id)
+  WITH CHECK (auth.uid() = id);
 
 -- 2. Create Tickets Table
 CREATE TABLE IF NOT EXISTS public.tickets (

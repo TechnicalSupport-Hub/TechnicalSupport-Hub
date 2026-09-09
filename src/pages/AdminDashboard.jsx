@@ -14,8 +14,6 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("active"); // 'active' | 'history' | 'clustering' | 'faqs'
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [prefillFaqData, setPrefillFaqData] = useState(null);
-
   // Active & History counts
   const activeTicketsCount = tickets.filter(
     (t) => t.status === "Pending" || t.status === "Processing"
@@ -33,11 +31,6 @@ export default function AdminDashboard() {
     if (selectedTicket && selectedTicket.id === ticketId) {
       setSelectedTicket((prev) => (prev ? { ...prev, status: newStatus } : null));
     }
-  };
-
-  const handleConvertToFaq = (faqDraft) => {
-    setPrefillFaqData(faqDraft);
-    setActiveTab("faqs");
   };
 
   return (
@@ -98,22 +91,11 @@ export default function AdminDashboard() {
           />
         )}
 
-        {/* Issue Trends & Clustering */}
-        {activeTab === "clustering" && (
-          <AdminIssueClustering
-            tickets={tickets}
-            onConvertToFaq={handleConvertToFaq}
-          />
-        )}
+        {/* Issue Trends */}
+        {activeTab === "clustering" && <AdminIssueClustering />}
 
         {/* FAQ Manager */}
-        {activeTab === "faqs" && (
-          <AdminFaqManager
-            key={prefillFaqData?.question || "default"}
-            prefillData={prefillFaqData}
-            onClearPrefill={() => setPrefillFaqData(null)}
-          />
-        )}
+        {activeTab === "faqs" && <AdminFaqManager />}
       </div>
 
       {/* Ticket Details Modal */}

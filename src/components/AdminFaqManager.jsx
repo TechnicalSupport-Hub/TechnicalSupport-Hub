@@ -4,12 +4,12 @@ import { useApp } from "../context/useApp";
 import Button from "./Button";
 import Input from "./Input";
 
-export default function AdminFaqManager({ prefillData, onClearPrefill }) {
+export default function AdminFaqManager() {
   const { faqs, addFaq, deleteFaq } = useApp();
 
-  const [question, setQuestion] = useState(prefillData?.question || "");
-  const [answer, setAnswer] = useState(prefillData?.answer || "");
-  const [category, setCategory] = useState(prefillData?.category || "General");
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [category, setCategory] = useState("General");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -28,7 +28,6 @@ export default function AdminFaqManager({ prefillData, onClearPrefill }) {
       setQuestion("");
       setAnswer("");
       setSuccessMessage("FAQ successfully published to the Help Center!");
-      onClearPrefill?.();
       setTimeout(() => setSuccessMessage(""), 4000);
     } finally {
       setIsSubmitting(false);
@@ -81,21 +80,8 @@ export default function AdminFaqManager({ prefillData, onClearPrefill }) {
           >
             <div className="flex items-center justify-between pb-3 border-b border-gray-100">
               <h2 className="text-base font-bold text-gray-900">
-                {prefillData?.question ? "Convert Issue to FAQ" : "Add New Knowledge Article"}
+                Add New Knowledge Article
               </h2>
-              {prefillData && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setQuestion("");
-                    setAnswer("");
-                    onClearPrefill?.();
-                  }}
-                  className="text-xs text-gray-400 hover:text-gray-600 underline cursor-pointer"
-                >
-                  Clear prefill
-                </button>
-              )}
             </div>
 
             <div className="space-y-1.5 text-left">
