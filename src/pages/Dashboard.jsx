@@ -1,5 +1,5 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate } from "react-router-dom";
 
 export default function Dashboard() {
-  return <Navigate to="/faq" replace />;
+  return <Navigate to="/tickets" replace />;
 }

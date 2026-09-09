@@ -20,7 +20,7 @@ export default function CreateTicket({ onSubmitTicket, onCancel }) {
     if (onCancel) {
       onCancel();
     } else {
-      navigate("/faq");
+      navigate("/tickets");
     }
   };
 
@@ -89,7 +89,7 @@ export default function CreateTicket({ onSubmitTicket, onCancel }) {
         await onSubmitTicket(ticketPayload);
       } else {
         await addTicket(ticketPayload);
-        navigate("/faq");
+        navigate("/tickets");
       }
     } catch (err) {
       setErrors({ form: err.message || "Failed to submit ticket to database." });

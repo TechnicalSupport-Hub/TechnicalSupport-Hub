@@ -125,15 +125,16 @@ To run with your live Supabase cloud database:
 
 ## Routing Reference
 
-| Route | Component | Description |
-| :--- | :--- | :--- |
-| `/` | `Landing.jsx` | Landing page with Hero Section and Sign In / Sign Up tabs. |
-| `/faq` | `FAQ.jsx` | Customer Help Center with dynamic Supabase FAQs. |
-| `/create-ticket` | `CreateTicket.jsx` | Ticket submission form with validation and upload. |
-| `/profile` | `Profile.jsx` | User profile, department, and contact information. |
-| `/admin` | `AdminDashboard.jsx` | Admin Desk (Queue, History, Issue Trends, FAQ Manager). |
-| `/dashboard` | `Dashboard.jsx` | Redirects to `/faq`. |
-| `*` | `Navigate` | Wildcard route redirecting to `/`. |
+| Route | Component | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `/` | `Landing.jsx` | Public | Landing page with Hero Section and Sign In / Sign Up tabs. |
+| `/faq` | `FAQ.jsx` | Public | Customer Help Center with dynamic Supabase FAQs. |
+| `/tickets` | `UserTickets.jsx` | Protected (User) | Customer Ticket Status tracker showing Pending, Processing, and Resolved complaints. |
+| `/create-ticket` | `CreateTicket.jsx` | Protected (User) | Ticket submission form with validation and upload. |
+| `/profile` | `Profile.jsx` | Protected (User/Admin) | User profile, department, and contact information. |
+| `/admin` | `AdminDashboard.jsx` | Protected (Admin) | Admin Operations Desk (Queue in Ledger Log view, History, Issue Trends, FAQ Manager). |
+| `/dashboard` | `Navigate` | Public | Redirects to `/tickets`. |
+| `*` | `Navigate` | Public | Wildcard route redirecting to `/`. |
 
 ---
 

@@ -1,13 +1,13 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { Footer, Header } from "./components";
+import { Footer, Header, ProtectedRoute } from "./components";
 import { AppProvider } from "./context/AppContext";
 import {
   AdminDashboard,
   CreateTicket,
-  Dashboard,
   FAQ,
   Landing,
   Profile,
+  UserTickets,
 } from "./pages";
 
 function App() {
@@ -18,14 +18,50 @@ function App() {
           <Header />
           <main className="flex-1 flex flex-col">
             <Routes>
+              {/* Public Routes */}
               <Route path="/" element={<Landing />} />
               <Route path="/login" element={<Landing />} />
               <Route path="/signup" element={<Landing />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/create-ticket" element={<CreateTicket />} />
               <Route path="/faq" element={<FAQ />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/admin" element={<AdminDashboard />} />
+
+              {/* Protected User Routes */}
+              <Route
+                path="/tickets"
+                element={
+                  <ProtectedRoute>
+                    <UserTickets />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/create-ticket"
+                element={
+                  <ProtectedRoute>
+                    <CreateTicket />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/dashboard" element={<Navigate to="/tickets" replace />} />
+
+              {/* Protected Admin Route */}
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute requireAdmin={true}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Fallback */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>

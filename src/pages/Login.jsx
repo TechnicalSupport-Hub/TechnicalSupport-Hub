@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Button, Input } from "../components";
 import { useApp } from "../context/useApp";
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useApp();
@@ -15,24 +17,36 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    const cleanEmail = email.trim();
+    if (!EMAIL_REGEX.test(cleanEmail)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    if (!password) {
+      setError("Please enter your password.");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const res = await login(email.trim(), password);
+      const res = await login(cleanEmail, password);
 
       if (res.error) {
-        setError(res.error.message || "Invalid credentials. Please try again.");
+        setError(res.error.message || "Invalid credentials. Please check and try again.");
         return;
       }
 
-      // Navigate based on user's role from Supabase
-      if (res.role === "admin" || email.toLowerCase().includes("admin")) {
+      // Navigate based on user role from Supabase
+      if (res.role === "admin" || cleanEmail.toLowerCase().includes("admin")) {
         navigate("/admin");
       } else {
-        navigate("/faq");
+        navigate("/tickets");
       }
     } catch (err) {
-      setError(err.message || "An unexpected error occurred during login.");
+      setError(err.message || "An unexpected error occurred during sign in.");
     } finally {
       setIsLoading(false);
     }
@@ -52,7 +66,7 @@ export default function Login() {
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        placeholder="name@example.com"
+        placeholder="name@company.com"
         required
       />
 
@@ -67,7 +81,7 @@ export default function Login() {
       />
 
       <Button type="submit" fullWidth isLoading={isLoading}>
-        Sign In with Supabase
+        Sign In
       </Button>
     </form>
   );

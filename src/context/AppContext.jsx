@@ -165,7 +165,9 @@ export function AppProvider({ children }) {
           });
 
           await fetchProfile(currentUser.id, currentUser.email, name);
-          await fetchNotifications(currentUser.id);
+          if (role !== "admin") {
+            await fetchNotifications(currentUser.id);
+          }
         }
 
         // Fetch shared collections
@@ -199,7 +201,9 @@ export function AppProvider({ children }) {
         });
 
         await fetchProfile(u.id, u.email, name);
-        await fetchNotifications(u.id);
+        if (role !== "admin") {
+          await fetchNotifications(u.id);
+        }
       } else if (event === "SIGNED_OUT") {
         setAuth({
           isAuthenticated: false,
@@ -240,7 +244,7 @@ export function AppProvider({ children }) {
         "postgres_changes",
         { event: "*", schema: "public", table: "notifications" },
         () => {
-          if (auth.id) fetchNotifications(auth.id);
+          if (auth.id && auth.role !== "admin") fetchNotifications(auth.id);
         }
       )
       .subscribe();
@@ -250,7 +254,7 @@ export function AppProvider({ children }) {
       authSubscription?.unsubscribe();
       supabase.removeChannel(realtimeChannel);
     };
-  }, [fetchTickets, fetchFaqs, fetchNotifications, fetchProfile, auth.id]);
+  }, [fetchTickets, fetchFaqs, fetchNotifications, fetchProfile, auth.id, auth.role]);
 
   // Direct Supabase Login
   const login = async (email, password) => {
@@ -292,7 +296,11 @@ export function AppProvider({ children }) {
         role: userRole,
       });
 
-      fetchNotifications(user.id);
+      if (userRole !== "admin") {
+        fetchNotifications(user.id);
+      } else {
+        setNotifications([]);
+      }
       return { success: true, user, role: userRole };
     }
 

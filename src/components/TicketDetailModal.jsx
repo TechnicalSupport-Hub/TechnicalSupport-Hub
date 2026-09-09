@@ -135,6 +135,17 @@ export default function TicketDetailModal({
                     </p>
                   </div>
                 </div>
+
+                <a
+                  href={attachmentUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  download={ticket.attachment?.name || "attachment-evidence.png"}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-gray-100 text-gray-800 border border-gray-200 transition-colors cursor-pointer"
+                >
+                  <Download size={14} />
+                  <span>Download</span>
+                </a>
               </div>
             ) : (
               <div className="p-4 rounded-xl bg-gray-50 border border-dashed border-gray-200 text-center text-sm text-gray-400 flex items-center justify-center gap-2">

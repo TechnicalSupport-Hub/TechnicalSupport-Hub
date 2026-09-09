@@ -5,13 +5,12 @@ import Footer from "./layout/Footer";
 import Header from "./layout/Header";
 import AdminSidebar from "./AdminSidebar";
 import AdminHistoryTable from "./AdminHistoryTable";
-import TicketCard from "./TicketCard";
-import TicketsGrid from "./TicketsGrid";
 import TicketDetailModal from "./TicketDetailModal";
 import NotebookTicketList from "./NotebookTicketList";
 import NotificationBell from "./NotificationBell";
 import AdminFaqManager from "./AdminFaqManager";
 import AdminIssueClustering from "./AdminIssueClustering";
+import ProtectedRoute from "./ProtectedRoute";
 
 export {
   Header,
@@ -21,11 +20,10 @@ export {
   HeroSection,
   AdminSidebar,
   AdminHistoryTable,
-  TicketCard,
-  TicketsGrid,
   TicketDetailModal,
   NotebookTicketList,
   NotificationBell,
   AdminFaqManager,
   AdminIssueClustering,
+  ProtectedRoute,
 };
