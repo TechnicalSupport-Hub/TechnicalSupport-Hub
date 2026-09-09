@@ -38,7 +38,7 @@ export default function NotebookTicketList({
   return (
     <div className="flex-1 flex flex-col p-4 sm:p-6 lg:p-8 overflow-y-auto text-left">
       {/* Header Banner */}
-      <section className="relative mb-6 overflow-hidden rounded-2xl bg-gray-950 px-6 py-6 sm:px-8 sm:py-7">
+      <section className="relative mb-6 rounded-2xl bg-gray-950 px-6 py-6 sm:px-8 sm:py-7">
         <div className="absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#0084ff]/20 blur-3xl" />
 
         <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -115,9 +115,9 @@ export default function NotebookTicketList({
         </div>
       </div>
 
-      {/* Ruled Container */}
-      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+      {/* Ticket Table */}
+      <div className="w-full min-w-0 rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="w-full max-w-full overflow-x-auto">
           <div className="min-w-[900px]">
             <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-600 uppercase tracking-wider items-center">
               <div className="col-span-2">Ticket ID</div>
@@ -144,7 +144,7 @@ export default function NotebookTicketList({
                       </span>
                     </div>
 
-                    <div className="col-span-5 pr-2">
+                    <div className="col-span-5 pr-2 min-w-0">
                       <p
                         onClick={() => onViewDetails(ticket)}
                         className="font-bold text-sm sm:text-base text-gray-900 hover:text-[#0084ff] cursor-pointer truncate transition-colors"
@@ -177,7 +177,7 @@ export default function NotebookTicketList({
                       <button
                         type="button"
                         onClick={() => onViewDetails(ticket)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold bg-gray-50 hover:bg-[#0084ff] text-gray-800 hover:text-white border border-gray-200 transition-colors cursor-pointer shadow-2xs"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold bg-gray-50 hover:bg-[#0084ff] text-gray-800 hover:text-white border border-gray-200 transition-colors cursor-pointer shadow-2xs whitespace-nowrap"
                         title="Open details modal"
                       >
                         <Eye size={14} />
