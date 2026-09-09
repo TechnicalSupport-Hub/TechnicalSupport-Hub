@@ -1,7 +1,6 @@
 import {
   HelpCircle,
   HeartHandshake,
-  ShieldCheck,
   Ticket,
   Plus,
   LogOut,

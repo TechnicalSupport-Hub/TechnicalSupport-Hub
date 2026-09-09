@@ -23,10 +23,53 @@ export default function TicketDetailModal({
       ? ticket.attachment
       : ticket.attachment?.previewUrl || ticket.attachment?.url || null;
 
+  const renderUserStatus = () => {
+    if (normalizedStatus === "Resolved") {
+      return (
+        <button
+          type="button"
+          disabled
+          className="px-3.5 py-2 rounded-lg text-sm font-semibold border bg-emerald-600 text-white border-emerald-600 shadow-xs cursor-default"
+        >
+          Resolved
+        </button>
+      );
+    } else if (normalizedStatus === "Reject") {
+      return (
+        <button
+          type="button"
+          disabled
+          className="px-3.5 py-2 rounded-lg text-sm font-semibold border bg-rose-600 text-white border-rose-600 shadow-xs cursor-default"
+        >
+          Rejected
+        </button>
+      );
+    } else if (normalizedStatus === "Processing") {
+      return (
+        <button
+          type="button"
+          disabled
+          className="px-3.5 py-2 rounded-lg text-sm font-semibold border bg-[#0084ff] text-white border-[#0084ff] shadow-xs cursor-default"
+        >
+          Processing
+        </button>
+      );
+    } else {
+      return (
+        <button
+          type="button"
+          disabled
+          className="px-3.5 py-2 rounded-lg text-sm font-semibold border bg-amber-500 text-white border-amber-500 shadow-xs cursor-default"
+        >
+          Pending
+        </button>
+      );
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="relative w-full max-w-2xl rounded-2xl bg-white border border-gray-200 shadow-2xl text-left overflow-hidden flex flex-col max-h-[90vh]">
-        {/* Header */}
         <div className="relative overflow-hidden bg-gray-950 px-6 py-5 border-b border-gray-800">
           <div className="absolute -right-10 -top-14 h-36 w-36 rounded-full bg-[#0084ff]/25 blur-2xl" />
 
@@ -51,9 +94,7 @@ export default function TicketDetailModal({
           </div>
         </div>
 
-        {/* Modal Scrollable Body */}
         <div className="p-6 overflow-y-auto space-y-6">
-          {/* Metadata Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
             <div className="p-3.5 rounded-xl bg-gray-50 border border-gray-200">
               <span className="text-xs uppercase font-bold text-gray-400 flex items-center gap-1.5 mb-1">
@@ -92,8 +133,7 @@ export default function TicketDetailModal({
             </div>
           </div>
 
-          {/* Issue Title */}
-          <div > 
+          <div> 
             <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1.5">
               Issue Title
             </span>
@@ -102,7 +142,6 @@ export default function TicketDetailModal({
             </h3>
           </div>
 
-          {/* Issue Description */}
           <div>
             <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">
               Full Description
@@ -112,7 +151,6 @@ export default function TicketDetailModal({
             </div>
           </div>
 
-          {/* Attachment Area */}
           <div>
             <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">
               Attachment Evidence
@@ -155,46 +193,50 @@ export default function TicketDetailModal({
             )}
           </div>
 
-          {/* Update Status Quick Action */}
           <div className="p-4 rounded-xl bg-gray-50 border border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
             <div>
               <span className="text-sm font-bold text-gray-900 block">
-                Update Ticket Status
+                {onStatusChange ? "Update Ticket Status" : "Ticket Status"}
               </span>
               <span className="text-xs text-gray-500">
-                Immediately updates status in Supabase and notifies the user.
+                {onStatusChange
+                  ? "Immediately updates status in Supabase and notifies the user."
+                  : "Current live progress of your support complaint."}
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
-              {["Pending", "Processing", "Reject", "Resolved"].map((st) => {
-                const isSelected = normalizedStatus === st;
-                return (
-                  <button
-                    key={st}
-                    type="button"
-                    onClick={() => onStatusChange?.(ticket.id, st)}
-                    className={`px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors border cursor-pointer ${
-                      isSelected
-                        ? st === "Resolved"
-                          ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
-                          : st === "Reject"
-                          ? "bg-rose-600 text-white border-rose-600 shadow-xs"
-                          : st === "Processing"
-                          ? "bg-[#0084ff] text-white border-[#0084ff] shadow-xs"
-                          : "bg-amber-500 text-white border-amber-500 shadow-xs"
-                        : "bg-white text-gray-700 hover:text-gray-900 hover:bg-gray-100 border-gray-200"
-                    }`}
-                  >
-                    {st === "Reject" ? "Rejected" : st}
-                  </button>
-                );
-              })}
-            </div>
+            {onStatusChange ? (
+              <div className="flex items-center gap-2">
+                {["Pending", "Processing", "Reject", "Resolved"].map((st) => {
+                  const isSelected = normalizedStatus === st;
+                  return (
+                    <button
+                      key={st}
+                      type="button"
+                      onClick={() => onStatusChange?.(ticket.id, st)}
+                      className={`px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors border cursor-pointer ${
+                        isSelected
+                          ? st === "Resolved"
+                            ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
+                            : st === "Reject"
+                            ? "bg-rose-600 text-white border-rose-600 shadow-xs"
+                            : st === "Processing"
+                            ? "bg-[#0084ff] text-white border-[#0084ff] shadow-xs"
+                            : "bg-amber-500 text-white border-amber-500 shadow-xs"
+                          : "bg-white text-gray-700 hover:text-gray-900 hover:bg-gray-100 border-gray-200"
+                      }`}
+                    >
+                      {st === "Reject" ? "Rejected" : st}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              renderUserStatus()
+            )}
           </div>
         </div>
 
-        {/* Footer */}
         <div className="p-4 sm:p-5 border-t border-gray-200 bg-gray-50 flex justify-end">
           <button
             type="button"

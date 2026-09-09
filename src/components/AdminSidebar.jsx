@@ -2,7 +2,6 @@ import {
   ShieldCheck,
   Inbox,
   History,
-  Ticket,
   Layers,
   HelpCircle,
 } from "lucide-react";
