@@ -11,10 +11,10 @@ import { useApp } from "../context/useApp";
 export default function AdminDashboard() {
   const { auth, tickets, updateTicketStatus, faqs } = useApp();
 
-  const [activeTab, setActiveTab] = useState("active"); // 'active' | 'history' | 'clustering' | 'faqs'
+  const [activeTab, setActiveTab] = useState("active");
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  // Active & History counts
+
   const activeTicketsCount = tickets.filter(
     (t) => t.status === "Pending" || t.status === "Processing"
   ).length;
@@ -35,7 +35,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex-1 flex flex-col lg:flex-row min-h-[calc(100vh-68px)] bg-white text-gray-900">
-      {/* Mobile Top Header */}
       <div className="lg:hidden flex items-center justify-between px-5 py-3.5 border-b border-gray-200 bg-white">
         <div className="flex items-center gap-3">
           <button
@@ -50,7 +49,6 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Sidebar with Independent Scroll */}
       <div
         className={`${
           mobileMenuOpen ? "block" : "hidden"
@@ -72,9 +70,7 @@ export default function AdminDashboard() {
         />
       </div>
 
-      {/* Main Content Area with Independent Scroll */}
       <div className="flex-1 flex flex-col min-w-0 bg-white overflow-y-auto">
-        {/* Active Queue: Single View Mode (Strictly Ledger Log, no viewMode tabs/buttons) */}
         {activeTab === "active" && (
           <NotebookTicketList
             tickets={tickets}
@@ -83,7 +79,6 @@ export default function AdminDashboard() {
           />
         )}
 
-        {/* History Tab */}
         {activeTab === "history" && (
           <AdminHistoryTable
             tickets={tickets}
@@ -91,14 +86,11 @@ export default function AdminDashboard() {
           />
         )}
 
-        {/* Issue Trends */}
         {activeTab === "clustering" && <AdminIssueClustering />}
 
-        {/* FAQ Manager */}
         {activeTab === "faqs" && <AdminFaqManager />}
       </div>
 
-      {/* Ticket Details Modal */}
       {selectedTicket && (
         <TicketDetailModal
           ticket={selectedTicket}

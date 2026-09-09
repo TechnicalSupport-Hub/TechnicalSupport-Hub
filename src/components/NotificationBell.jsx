@@ -21,7 +21,6 @@ export default function NotificationBell() {
 
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Bell Button */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -36,10 +35,8 @@ export default function NotificationBell() {
         )}
       </button>
 
-      {/* Popover Dropdown */}
       {isOpen && (
         <div className="absolute -right-20 mt-2 w-80 sm:w-96 rounded-2xl bg-white border border-gray-200 shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150 text-left">
-          {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50">
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-gray-900">Notifications</span>
@@ -62,7 +59,6 @@ export default function NotificationBell() {
             )}
           </div>
 
-          {/* List */}
           <div className="max-h-80 overflow-y-auto divide-y divide-gray-100">
             {notifications.length > 0 ? (
               notifications.map((n) => (

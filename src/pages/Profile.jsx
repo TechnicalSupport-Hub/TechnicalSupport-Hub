@@ -37,7 +37,6 @@ function ProfileContent({ profile, auth, updateProfile, logout, navigate }) {
   return (
     <main className="w-full flex-1">
       <div className="mx-auto w-full max-w-3xl px-5 py-10 sm:px-8 sm:py-14">
-        {/* Back navigation & Page Header */}
         <div className="mb-6 flex items-center justify-between">
           <button
             type="button"
@@ -58,7 +57,6 @@ function ProfileContent({ profile, auth, updateProfile, logout, navigate }) {
           </button>
         </div>
 
-        {/* Hero Section Banner */}
         <section className="relative mb-8 overflow-hidden rounded-2xl bg-gray-950 px-6 py-7 sm:px-8 sm:py-8 text-left">
           <div className="absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#0084ff]/20 blur-3xl" />
 
@@ -86,7 +84,6 @@ function ProfileContent({ profile, auth, updateProfile, logout, navigate }) {
           </div>
         </section>
 
-        {/* Success Alert */}
         {savedSuccess && (
           <div className="mb-6 flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 p-4 text-sm font-semibold text-emerald-800 animate-in fade-in">
             <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
@@ -94,7 +91,6 @@ function ProfileContent({ profile, auth, updateProfile, logout, navigate }) {
           </div>
         )}
 
-        {/* Profile Edit Form */}
         <form
           onSubmit={handleSave}
           className="rounded-2xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm space-y-6 text-left"

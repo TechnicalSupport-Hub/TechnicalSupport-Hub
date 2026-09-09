@@ -39,7 +39,6 @@ export default function Login() {
         return;
       }
 
-      // Navigate based on user role from Supabase
       if (res.role === "admin" || cleanEmail.toLowerCase().includes("admin")) {
         navigate("/admin");
       } else {

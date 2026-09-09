@@ -46,7 +46,6 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
-      // Default signup creates customer ("user") account
       const res = await signUp(cleanEmail, password, cleanName, "user");
 
       if (res.error) {

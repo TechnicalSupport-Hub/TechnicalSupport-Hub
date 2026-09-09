@@ -16,7 +16,6 @@ export default function AdminSidebar({
 }) {
   return (
     <aside className="w-full flex flex-col p-5 text-left">
-      {/* Admin Profile Box */}
       <div className="mb-5 p-3.5 rounded-2xl bg-gray-50 border border-gray-200 flex items-center gap-3.5">
         <div className="relative">
           <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-[#0084ff] to-blue-700 p-0.5">
@@ -46,7 +45,6 @@ export default function AdminSidebar({
         </div>
       </div>
 
-      {/* Navigation */}
       <nav className="space-y-2">
         <span className="text-xs font-bold text-gray-400 uppercase tracking-wider px-3 mb-1 block">
           Ticket Management

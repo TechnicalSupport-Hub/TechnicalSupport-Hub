@@ -3,7 +3,6 @@ import { AppContext } from "./AppContextInstance";
 import { supabase } from "../lib/supabase";
 
 export function AppProvider({ children }) {
-  // Authentication state
   const [auth, setAuth] = useState({
     isAuthenticated: false,
     role: "user",
@@ -12,7 +11,6 @@ export function AppProvider({ children }) {
     id: "",
   });
 
-  // User profile state
   const [profile, setProfile] = useState({
     fullName: "",
     email: "",
@@ -21,13 +19,11 @@ export function AppProvider({ children }) {
     role: "user",
   });
 
-  // Main data collections
   const [tickets, setTickets] = useState([]);
   const [faqs, setFaqs] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 1. Fetch User Profile
   const fetchProfile = useCallback(async (userId, fallbackEmail = "", fallbackName = "") => {
     if (!userId) return;
     try {
@@ -56,7 +52,6 @@ export function AppProvider({ children }) {
     }
   }, []);
 
-  // 2. Fetch Tickets
   const fetchTickets = useCallback(async () => {
     try {
       const { data, error } = await supabase
@@ -90,7 +85,6 @@ export function AppProvider({ children }) {
     }
   }, []);
 
-  // 3. Fetch FAQs
   const fetchFaqs = useCallback(async () => {
     try {
       const { data, error } = await supabase
@@ -105,7 +99,6 @@ export function AppProvider({ children }) {
     }
   }, []);
 
-  // 4. Fetch Notifications
   const fetchNotifications = useCallback(async (userId) => {
     try {
       let query = supabase
@@ -140,14 +133,12 @@ export function AppProvider({ children }) {
     }
   }, []);
 
-  // Initialize session and data on mount
   useEffect(() => {
     let isMounted = true;
 
     async function initialize() {
       setIsLoading(true);
       try {
-        // Check active Supabase session
         const { data: sessionData } = await supabase.auth.getSession();
         const currentUser = sessionData?.session?.user;
 
@@ -170,7 +161,6 @@ export function AppProvider({ children }) {
           }
         }
 
-        // Fetch shared collections
         await Promise.all([fetchTickets(), fetchFaqs()]);
       } catch (err) {
         console.error("Initialization error:", err);
@@ -181,7 +171,6 @@ export function AppProvider({ children }) {
 
     initialize();
 
-    // Listen to Supabase Auth changes
     const {
       data: { subscription: authSubscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -223,7 +212,6 @@ export function AppProvider({ children }) {
       }
     });
 
-    // Realtime changes channel
     const realtimeChannel = supabase
       .channel("app-realtime")
       .on(
@@ -256,7 +244,6 @@ export function AppProvider({ children }) {
     };
   }, [fetchTickets, fetchFaqs, fetchNotifications, fetchProfile, auth.id, auth.role]);
 
-  // Direct Supabase Login
   const login = async (email, password) => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -267,7 +254,6 @@ export function AppProvider({ children }) {
 
     const user = data?.user;
     if (user) {
-      // Fetch profile to get real role
       const { data: profileRow } = await supabase
         .from("profiles")
         .select("*")
@@ -307,7 +293,6 @@ export function AppProvider({ children }) {
     return { error: new Error("Authentication failed") };
   };
 
-  // Direct Supabase Sign Up
   const signUp = async (email, password, fullName, role = "user") => {
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -323,7 +308,6 @@ export function AppProvider({ children }) {
     if (error) return { error };
 
     if (data?.user) {
-      // Create user row in public.profiles table
       try {
         await supabase.from("profiles").upsert({
           id: data.user.id,
@@ -357,7 +341,6 @@ export function AppProvider({ children }) {
     return { success: true };
   };
 
-  // Direct Supabase Logout
   const logout = async () => {
     await supabase.auth.signOut();
     setAuth({
@@ -376,7 +359,6 @@ export function AppProvider({ children }) {
     });
   };
 
-  // Update Profile in Supabase
   const updateProfile = async (updatedData) => {
     setProfile((prev) => ({ ...prev, ...updatedData }));
 
@@ -395,7 +377,6 @@ export function AppProvider({ children }) {
     }
   };
 
-  // Add Ticket to Supabase
   const addTicket = async ({ title, description, attachment = null }) => {
     const ticketId = `TKT-${Math.floor(1000 + Math.random() * 9000)}`;
     const userId = auth.id || `USR-${Date.now()}`;
@@ -413,7 +394,6 @@ export function AppProvider({ children }) {
       attachment: typeof attachment === "string" ? attachment : attachment?.previewUrl || null,
     };
 
-    // Optimistic state update
     setTickets((prev) => [
       {
         id: newTicket.id,
@@ -443,23 +423,19 @@ export function AppProvider({ children }) {
     return data || newTicket;
   };
 
-  // Update Ticket Status & Send Notification
   const updateTicketStatus = async (ticketId, newStatus) => {
     const status = newStatus === "Rejected" ? "Reject" : newStatus;
     const target = tickets.find((t) => t.id === ticketId);
 
-    // Optimistic ticket update
     setTickets((prev) =>
       prev.map((t) => (t.id === ticketId ? { ...t, status } : t))
     );
 
-    // Update in Supabase
     await supabase
       .from("tickets")
       .update({ status, updated_at: new Date().toISOString() })
       .eq("id", ticketId);
 
-    // Insert Notification for user in Supabase
     if (target) {
       const notifPayload = {
         id: `notif-${Date.now()}`,
@@ -487,7 +463,6 @@ export function AppProvider({ children }) {
     }
   };
 
-  // Notifications Helpers
   const markNotificationRead = async (notifId) => {
     setNotifications((prev) =>
       prev.map((n) => (n.id === notifId ? { ...n, isRead: true } : n))
@@ -508,7 +483,6 @@ export function AppProvider({ children }) {
     }
   };
 
-  // FAQ CRUD in Supabase
   const addFaq = async ({ question, answer, category = "General" }) => {
     const faqId = `faq-${Date.now()}`;
     const newFaq = {

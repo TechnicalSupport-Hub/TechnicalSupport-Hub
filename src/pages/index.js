@@ -1,6 +1,5 @@
 import AdminDashboard from "./AdminDashboard";
 import CreateTicket from "./CreateTicket";
-import Dashboard from "./Dashboard";
 import FAQ from "./FAQ";
 import Landing from "./Landing";
 import Login from "./Login";
@@ -10,7 +9,6 @@ import UserTickets from "./UserTickets";
 
 export {
   AdminDashboard,
-  Dashboard,
   FAQ,
   Landing,
   Login,

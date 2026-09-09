@@ -19,20 +19,17 @@ export default function AdminHistoryTable({ tickets = [], onViewDetails }) {
   const [activeTab, setActiveTab] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Only consider tickets that are Resolved or Reject
   const historyTickets = useMemo(() => {
     return tickets.filter(
       (t) => t.status === "Resolved" || t.status === "Reject" || t.status === "Rejected"
     );
   }, [tickets]);
 
-  // Tab counts
   const resolvedCount = historyTickets.filter((t) => t.status === "Resolved").length;
   const rejectCount = historyTickets.filter(
     (t) => t.status === "Reject" || t.status === "Rejected"
   ).length;
 
-  // Filtered rows
   const filteredTickets = useMemo(() => {
     return historyTickets.filter((t) => {
       const normalizedStatus = t.status === "Rejected" ? "Reject" : t.status;
@@ -55,7 +52,6 @@ export default function AdminHistoryTable({ tickets = [], onViewDetails }) {
 
   return (
     <div className="flex-1 flex flex-col p-4 sm:p-6 lg:p-8 overflow-y-auto text-left">
-      {/* Header Banner */}
       <section className="relative mb-6 rounded-2xl bg-gray-950 px-6 py-6 sm:px-8 sm:py-7">
         <div className="absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#0084ff]/20 blur-3xl" />
 
@@ -86,7 +82,6 @@ export default function AdminHistoryTable({ tickets = [], onViewDetails }) {
         </div>
       </section>
 
-      {/* Search and Tabs Row */}
       <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-200">
         <div className="relative w-full lg:w-80">
           <Search
@@ -111,7 +106,6 @@ export default function AdminHistoryTable({ tickets = [], onViewDetails }) {
           )}
         </div>
 
-        {/* Tabs */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0">
           {HISTORY_TABS.map((tab) => {
             const isSelected = activeTab === tab.id;
@@ -153,7 +147,6 @@ export default function AdminHistoryTable({ tickets = [], onViewDetails }) {
         </div>
       </div>
 
-      {/* Table */}
       <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">

@@ -9,7 +9,6 @@ export default function Landing() {
   const { auth } = useApp();
   const [activeTab, setActiveTab] = useState("login");
 
-  // If already authenticated, redirect to appropriate portal
   if (auth.isAuthenticated) {
     return <Navigate to={auth.role === "admin" ? "/admin" : "/faq"} replace />;
   }
@@ -18,15 +17,12 @@ export default function Landing() {
     <main className="flex-1 flex items-center justify-center">
       <div className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-8 sm:py-14">
         <div className="grid w-full grid-cols-1 items-start gap-10 md:grid-cols-[minmax(0,1fr)_380px] md:gap-12 lg:grid-cols-[minmax(0,1fr)_420px] lg:gap-16">
-          {/* Hero Section Container with stable vertical alignment */}
           <div className="max-w-2xl pt-2 sm:pt-6">
             <HeroSection />
           </div>
 
-          {/* Form Card */}
           <div className="w-full max-w-md md:justify-self-end">
             <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] sm:p-7">
-              {/* Dynamic Header based on active tab */}
               <div className="mb-6 text-left">
                 <h2 className="text-xl font-semibold tracking-tight text-gray-900">
                   {activeTab === "login" ? "Welcome back" : "Create an account"}
@@ -39,7 +35,6 @@ export default function Landing() {
                 </p>
               </div>
 
-              {/* Tab Switcher */}
               <div className="mb-6 flex rounded-lg border border-gray-200 bg-gray-50 p-1">
                 <button
                   type="button"

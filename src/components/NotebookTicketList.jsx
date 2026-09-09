@@ -11,7 +11,6 @@ export default function NotebookTicketList({
 
   const filteredTickets = useMemo(() => {
     return tickets.filter((ticket) => {
-      // Active queue filters out resolved / rejected
       const isHistorical =
         ticket.status === "Resolved" ||
         ticket.status === "Reject" ||
@@ -37,7 +36,6 @@ export default function NotebookTicketList({
 
   return (
     <div className="flex-1 flex flex-col p-4 sm:p-6 lg:p-8 overflow-y-auto text-left">
-      {/* Header Banner */}
       <section className="relative mb-6 rounded-2xl bg-gray-950 px-6 py-6 sm:px-8 sm:py-7">
         <div className="absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#0084ff]/20 blur-3xl" />
 
@@ -67,7 +65,6 @@ export default function NotebookTicketList({
         </div>
       </section>
 
-      {/* Search Bar and Filter Badges */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-gray-200">
         <div className="relative flex-1 max-w-md">
           <Search
@@ -92,7 +89,6 @@ export default function NotebookTicketList({
           )}
         </div>
 
-        {/* Filter Badges */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
           {["All", "Pending", "Processing"].map((opt) => {
             const isSelected = statusFilter === opt;
@@ -115,7 +111,6 @@ export default function NotebookTicketList({
         </div>
       </div>
 
-      {/* Ticket Table */}
       <div className="w-full min-w-0 rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="w-full max-w-full overflow-x-auto">
           <div className="min-w-[900px]">

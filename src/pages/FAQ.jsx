@@ -18,7 +18,6 @@ export default function FAQ() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  // Extract unique categories from FAQs
   const categories = useMemo(() => {
     const set = new Set();
     faqs.forEach((item) => {
@@ -27,15 +26,12 @@ export default function FAQ() {
     return ["All", ...Array.from(set)];
   }, [faqs]);
 
-  // Filter FAQs by search query and category
   const filteredFaqs = useMemo(() => {
     return faqs.filter((item) => {
-      // Category filter
       if (selectedCategory !== "All" && item.category !== selectedCategory) {
         return false;
       }
 
-      // Search filter
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchesQ = item.question?.toLowerCase().includes(q);
@@ -54,7 +50,6 @@ export default function FAQ() {
   return (
     <main className="w-full flex-1">
       <div className="mx-auto w-full max-w-4xl px-5 py-10 sm:px-8 sm:py-14 text-left">
-        {/* Banner with Direct Actions */}
         <section className="relative mb-8 overflow-hidden rounded-2xl bg-gray-950 px-6 py-7 sm:px-8 sm:py-9">
           <div className="absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#0084ff]/20 blur-3xl" />
 
@@ -73,7 +68,6 @@ export default function FAQ() {
               </p>
             </div>
 
-            {/* Quick Actions inside Banner */}
             <div className="flex items-center gap-3 shrink-0 flex-wrap">
               <Link
                 to="/create-ticket"
@@ -96,9 +90,7 @@ export default function FAQ() {
           </div>
         </section>
 
-        {/* Search & Category Filter Bar */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-gray-200">
-          {/* Search */}
           <div className="relative flex-1 max-w-md">
             <Search
               size={16}
@@ -122,7 +114,6 @@ export default function FAQ() {
             )}
           </div>
 
-          {/* Category Tabs (if multiple exist) */}
           {categories.length > 2 && (
             <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
               {categories.map((cat) => {
@@ -146,7 +137,6 @@ export default function FAQ() {
           )}
         </div>
 
-        {/* FAQs List */}
         {isLoading ? (
           <div className="py-12 text-center text-sm text-gray-400">
             Loading knowledge base articles...
@@ -223,7 +213,6 @@ export default function FAQ() {
           </div>
         )}
 
-        {/* Raise Ticket Callout */}
         <div className="mt-10 flex flex-col items-start justify-between gap-5 rounded-2xl border border-gray-200 bg-gray-50 p-6 sm:flex-row sm:items-center sm:p-7">
           <div>
             <h2 className="text-base font-semibold text-gray-900 sm:text-lg">

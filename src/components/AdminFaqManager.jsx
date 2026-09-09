@@ -36,7 +36,6 @@ export default function AdminFaqManager() {
 
   return (
     <div className="flex-1 flex flex-col p-4 sm:p-6 lg:p-8 overflow-y-auto text-left">
-      {/* Header Banner */}
       <section className="relative mb-6 rounded-2xl bg-gray-950 px-6 py-6 sm:px-8 sm:py-7">
         <div className="absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#0084ff]/20 blur-3xl" />
 
@@ -63,7 +62,6 @@ export default function AdminFaqManager() {
         </div>
       </section>
 
-      {/* Success Notification */}
       {successMessage && (
         <div className="mb-6 flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 p-4 text-sm font-semibold text-emerald-800 animate-in fade-in">
           <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
@@ -72,7 +70,6 @@ export default function AdminFaqManager() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Create FAQ Form */}
         <div className="lg:col-span-5">
           <form
             onSubmit={handleSubmit}
@@ -141,7 +138,6 @@ export default function AdminFaqManager() {
           </form>
         </div>
 
-        {/* Existing FAQs Table */}
         <div className="lg:col-span-7">
           <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
             <div className="px-5 py-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between">

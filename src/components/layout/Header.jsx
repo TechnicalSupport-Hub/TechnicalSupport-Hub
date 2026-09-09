@@ -21,7 +21,6 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-gray-200 bg-white">
       <div className="mx-auto flex h-[68px] max-w-7xl items-center justify-between px-5 sm:px-8">
-        {/* Brand */}
         <Link to="/" className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-400 text-white shadow-sm">
             <HeartHandshake size={24} strokeWidth={2.2} />
@@ -34,9 +33,7 @@ export default function Header() {
           </div>
         </Link>
 
-        {/* Navigation & Controls */}
         <nav className="flex items-center gap-2 sm:gap-3">
-          {/* FAQ link */}
           <Link
             to="/faq"
             className="group flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
@@ -49,10 +46,8 @@ export default function Header() {
             <span className="hidden sm:inline">FAQ</span>
           </Link>
 
-          {/* Regular User Navigation */}
           {auth.isAuthenticated && auth.role !== "admin" && (
             <>
-              {/* My Tickets */}
               <Link
                 to="/tickets"
                 className="group flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
@@ -66,7 +61,6 @@ export default function Header() {
                 <span className="hidden sm:inline">My Tickets</span>
               </Link>
 
-              {/* Raise Ticket */}
               <Link
                 to="/create-ticket"
                 className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-[#0084ff] border border-blue-200 hover:bg-blue-100 transition-colors"
@@ -75,12 +69,10 @@ export default function Header() {
                 <span className="hidden sm:inline">Raise Ticket</span>
               </Link>
 
-              {/* User Notifications (ONLY FOR USERS) */}
               <NotificationBell />
             </>
           )}
 
-          {/* User Profile */}
           {auth.isAuthenticated && (
             <Link
               to="/profile"
@@ -96,7 +88,6 @@ export default function Header() {
             </Link>
           )}
 
-          {/* Logout Button directly on Navbar */}
           {auth.isAuthenticated && (
             <button
               type="button"

@@ -18,13 +18,10 @@ function App() {
           <Header />
           <main className="flex-1 flex flex-col">
             <Routes>
-              {/* Public Routes */}
               <Route path="/" element={<Landing />} />
               <Route path="/login" element={<Landing />} />
               <Route path="/signup" element={<Landing />} />
               <Route path="/faq" element={<FAQ />} />
-
-              {/* Protected User Routes */}
               <Route
                 path="/tickets"
                 element={
@@ -50,8 +47,6 @@ function App() {
                 }
               />
               <Route path="/dashboard" element={<Navigate to="/faq" replace />} />
-
-              {/* Protected Admin Route */}
               <Route
                 path="/admin"
                 element={
@@ -60,8 +55,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
-              {/* Fallback */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>

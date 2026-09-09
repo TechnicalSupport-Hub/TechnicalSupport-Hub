@@ -29,10 +29,8 @@ export default function UserTickets() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTicket, setSelectedTicket] = useState(null);
 
-  // Filter tickets that belong to the current authenticated user
   const userTickets = useMemo(() => {
     return tickets.filter((t) => {
-      // Match current user by ID or email
       const matchesUser =
         t.userId === auth.id ||
         (auth.email && t.userEmail?.toLowerCase() === auth.email.toLowerCase());
@@ -40,7 +38,6 @@ export default function UserTickets() {
     });
   }, [tickets, auth.id, auth.email]);
 
-  // Apply tab filter & search
   const filteredTickets = useMemo(() => {
     return userTickets.filter((t) => {
       const normStatus = t.status === "Rejected" ? "Reject" : t.status;
@@ -63,7 +60,6 @@ export default function UserTickets() {
   return (
     <main className="w-full flex-1">
       <div className="mx-auto w-full max-w-5xl px-5 py-10 sm:px-8 sm:py-14 text-left">
-        {/* Banner */}
         <section className="relative mb-8 overflow-hidden rounded-2xl bg-gray-950 px-6 py-7 sm:px-8 sm:py-9">
           <div className="absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#0084ff]/20 blur-3xl" />
 
@@ -92,7 +88,6 @@ export default function UserTickets() {
           </div>
         </section>
 
-        {/* Filter and Search Row */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-gray-200">
           <div className="relative flex-1 max-w-md">
             <Search
@@ -117,7 +112,6 @@ export default function UserTickets() {
             )}
           </div>
 
-          {/* Status Tabs */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
             {STATUS_FILTERS.map((tab) => {
               const isSelected = activeFilter === tab.id;
@@ -139,7 +133,6 @@ export default function UserTickets() {
           </div>
         </div>
 
-        {/* Tickets List */}
         {filteredTickets.length > 0 ? (
           <div className="space-y-3">
             {filteredTickets.map((ticket) => {
@@ -157,7 +150,6 @@ export default function UserTickets() {
                         #{ticket.id}
                       </span>
 
-                      {/* Status Badge */}
                       {normStatus === "Pending" && (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
                           <Clock size={13} className="text-amber-500" />
@@ -233,7 +225,6 @@ export default function UserTickets() {
           </div>
         )}
 
-        {/* View Details Modal */}
         {selectedTicket && (
           <TicketDetailModal
             ticket={selectedTicket}
