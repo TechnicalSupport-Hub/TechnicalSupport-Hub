@@ -38,7 +38,7 @@ export default function AdminFaqManager({ prefillData, onClearPrefill }) {
   return (
     <div className="flex-1 flex flex-col p-4 sm:p-6 lg:p-8 overflow-y-auto text-left">
       {/* Header Banner */}
-      <section className="relative mb-6 overflow-hidden rounded-2xl bg-gray-950 px-6 py-6 sm:px-8 sm:py-7">
+      <section className="relative mb-6 rounded-2xl bg-gray-950 px-6 py-6 sm:px-8 sm:py-7">
         <div className="absolute -right-16 -top-20 h-48 w-48 rounded-full bg-[#0084ff]/20 blur-3xl" />
 
         <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4">

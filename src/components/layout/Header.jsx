@@ -20,17 +20,17 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-gray-200 bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-40 w-full border-b border-gray-200 bg-white">
       <div className="mx-auto flex h-[68px] max-w-7xl items-center justify-between px-5 sm:px-8">
         {/* Brand */}
         <Link to="/" className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#0084ff] text-white shadow-sm">
-            <HeartHandshake size={22} strokeWidth={2.2} />
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-400 text-white shadow-sm">
+            <HeartHandshake size={24} strokeWidth={2.2} />
           </div>
 
           <div className="flex items-center gap-2.5">
-            <span className="text-xl font-bold tracking-[-0.02em] text-gray-900">
-              AutoTicket
+            <span className="text-sm md:text-xl font-bold tracking-[-0.02em] text-gray-900">
+              Help Desk
             </span>
           </div>
         </Link>
@@ -47,7 +47,7 @@ export default function Header() {
               strokeWidth={1.9}
               className="text-gray-400 transition-colors group-hover:text-[#0084ff]"
             />
-            <span>FAQ</span>
+            <span className="hidden sm:inline">FAQ</span>
           </Link>
 
           {/* Regular User Navigation */}
@@ -64,7 +64,7 @@ export default function Header() {
                   strokeWidth={1.9}
                   className="text-gray-400 transition-colors group-hover:text-[#0084ff]"
                 />
-                <span>My Tickets</span>
+                <span className="hidden sm:inline">My Tickets</span>
               </Link>
 
               {/* Raise Ticket */}
@@ -73,23 +73,12 @@ export default function Header() {
                 className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-[#0084ff] border border-blue-200 hover:bg-blue-100 transition-colors"
               >
                 <Plus size={14} />
-                <span>Raise Ticket</span>
+                <span className="hidden sm:inline">Raise Ticket</span>
               </Link>
 
               {/* User Notifications (ONLY FOR USERS) */}
               <NotificationBell />
             </>
-          )}
-
-          {/* Admin Navigation */}
-          {auth.isAuthenticated && auth.role === "admin" && (
-            <Link
-              to="/admin"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-[#0084ff] border border-blue-200 hover:bg-blue-100 transition-colors"
-            >
-              <ShieldCheck size={14} />
-              <span>Admin Desk</span>
-            </Link>
           )}
 
           {/* User Profile */}

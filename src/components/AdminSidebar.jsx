@@ -17,23 +17,8 @@ export default function AdminSidebar({
 }) {
   return (
     <aside className="w-full flex flex-col p-5 text-left">
-      {/* Brand Bar */}
-      <div className="flex items-center gap-3 pb-4 border-b border-gray-200">
-        <div className="w-9 h-9 rounded-xl bg-[#0084ff] flex items-center justify-center text-white shadow-sm">
-          <Ticket size={18} />
-        </div>
-        <div>
-          <span className="text-base font-bold text-gray-900 tracking-tight block">
-            AutoTicket
-          </span>
-          <span className="text-xs font-mono text-gray-500 font-semibold">
-            Admin Desk
-          </span>
-        </div>
-      </div>
-
       {/* Admin Profile Box */}
-      <div className="my-5 p-3.5 rounded-2xl bg-gray-50 border border-gray-200 flex items-center gap-3.5">
+      <div className="mb-5 p-3.5 rounded-2xl bg-gray-50 border border-gray-200 flex items-center gap-3.5">
         <div className="relative">
           <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-[#0084ff] to-blue-700 p-0.5">
             <div className="w-full h-full rounded-xl bg-white flex items-center justify-center text-[#0084ff] font-bold text-base">
