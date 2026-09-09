@@ -73,7 +73,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Main Content Area with Independent Scroll */}
-      <div className="flex-1 flex flex-col min-w-0 bg-white lg:h-[calc(100vh-68px)] overflow-y-auto">
+      <div className="flex-1 flex flex-col min-w-0 bg-white overflow-y-auto">
         {/* Active Queue: Single View Mode (Strictly Ledger Log, no viewMode tabs/buttons) */}
         {activeTab === "active" && (
           <NotebookTicketList
