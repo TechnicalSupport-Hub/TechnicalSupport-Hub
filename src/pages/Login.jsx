@@ -43,7 +43,7 @@ export default function Login() {
       if (res.role === "admin" || cleanEmail.toLowerCase().includes("admin")) {
         navigate("/admin");
       } else {
-        navigate("/tickets");
+        navigate("/faq");
       }
     } catch (err) {
       setError(err.message || "An unexpected error occurred during sign in.");

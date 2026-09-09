@@ -11,7 +11,7 @@ export default function Landing() {
 
   // If already authenticated, redirect to appropriate portal
   if (auth.isAuthenticated) {
-    return <Navigate to={auth.role === "admin" ? "/admin" : "/tickets"} replace />;
+    return <Navigate to={auth.role === "admin" ? "/admin" : "/faq"} replace />;
   }
 
   return (

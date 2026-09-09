@@ -49,7 +49,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-              <Route path="/dashboard" element={<Navigate to="/tickets" replace />} />
+              <Route path="/dashboard" element={<Navigate to="/faq" replace />} />
 
               {/* Protected Admin Route */}
               <Route

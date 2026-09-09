@@ -35,7 +35,7 @@ export function AppProvider({ children }) {
         .from("profiles")
         .select("*")
         .eq("id", userId)
-        .single();
+        .maybeSingle();
 
       if (!error && data) {
         setProfile({
@@ -272,7 +272,7 @@ export function AppProvider({ children }) {
         .from("profiles")
         .select("*")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
       const userRole = profileRow?.role || user.user_metadata?.role || "user";
       const userName =
@@ -324,12 +324,16 @@ export function AppProvider({ children }) {
 
     if (data?.user) {
       // Create user row in public.profiles table
-      await supabase.from("profiles").upsert({
-        id: data.user.id,
-        full_name: fullName,
-        email,
-        role,
-      });
+      try {
+        await supabase.from("profiles").upsert({
+          id: data.user.id,
+          full_name: fullName,
+          email,
+          role,
+        });
+      } catch (profileErr) {
+        console.warn("Profile creation deferred:", profileErr);
+      }
 
       setAuth({
         isAuthenticated: true,
@@ -429,7 +433,7 @@ export function AppProvider({ children }) {
       .from("tickets")
       .insert(newTicket)
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error("Error creating ticket in Supabase:", error);
@@ -521,7 +525,7 @@ export function AppProvider({ children }) {
       .from("faqs")
       .insert(newFaq)
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error("Error inserting FAQ:", error);

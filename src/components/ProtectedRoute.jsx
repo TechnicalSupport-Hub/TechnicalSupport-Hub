@@ -38,7 +38,7 @@ export default function ProtectedRoute({ children, requireAdmin = false }) {
   }
 
   if (requireAdmin && auth.role !== "admin") {
-    return <Navigate to="/tickets" replace />;
+    return <Navigate to="/faq" replace />;
   }
 
   return children;

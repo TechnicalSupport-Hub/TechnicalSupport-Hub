@@ -54,7 +54,7 @@ export default function Signup() {
         return;
       }
 
-      navigate("/tickets");
+      navigate("/faq");
     } catch (err) {
       setError(err.message || "An error occurred during account creation.");
     } finally {

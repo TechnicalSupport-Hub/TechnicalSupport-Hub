@@ -20,7 +20,7 @@ export default function CreateTicket({ onSubmitTicket, onCancel }) {
     if (onCancel) {
       onCancel();
     } else {
-      navigate("/tickets");
+      navigate("/faq");
     }
   };
 
