@@ -117,78 +117,84 @@ export default function NotebookTicketList({
 
       {/* Ruled Container */}
       <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-        <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-600 uppercase tracking-wider items-center">
-          <div className="col-span-2">Ticket ID</div>
-          <div className="col-span-2">User ID</div>
-          <div className="col-span-5">Issue Title</div>
-          <div className="col-span-2 text-center">Status</div>
-          <div className="col-span-1 text-right">Action</div>
-        </div>
+        <div className="overflow-x-auto">
+          <div className="min-w-[900px]">
+            <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-600 uppercase tracking-wider items-center">
+              <div className="col-span-2">Ticket ID</div>
+              <div className="col-span-2">User ID</div>
+              <div className="col-span-5">Issue Title</div>
+              <div className="col-span-2 text-center">Status</div>
+              <div className="col-span-1 text-right">Action</div>
+            </div>
 
-        {filteredTickets.length > 0 ? (
-          <div className="divide-y divide-gray-100">
-            {filteredTickets.map((ticket) => (
-              <div
-                key={ticket.id}
-                className="grid grid-cols-12 gap-4 px-6 py-4 items-center text-sm hover:bg-gray-50 transition-colors"
-              >
-                <div className="col-span-2 font-mono font-bold text-sm sm:text-base text-[#0084ff]">
-                  #{ticket.id}
-                </div>
-
-                <div className="col-span-2 flex items-center">
-                  <span className="font-mono text-xs sm:text-sm font-medium px-2.5 py-1 rounded-lg bg-gray-100 text-gray-800 border border-gray-200">
-                    {ticket.userId}
-                  </span>
-                </div>
-
-                <div className="col-span-5 pr-2">
-                  <p
-                    onClick={() => onViewDetails(ticket)}
-                    className="font-bold text-sm sm:text-base text-gray-900 hover:text-[#0084ff] cursor-pointer truncate transition-colors"
-                    title={ticket.title}
+            {filteredTickets.length > 0 ? (
+              <div className="divide-y divide-gray-100">
+                {filteredTickets.map((ticket) => (
+                  <div
+                    key={ticket.id}
+                    className="grid grid-cols-12 gap-4 px-6 py-4 items-center text-sm hover:bg-gray-50 transition-colors"
                   >
-                    {ticket.title}
-                  </p>
-                </div>
+                    <div className="col-span-2 font-mono font-bold text-sm sm:text-base text-[#0084ff]">
+                      #{ticket.id}
+                    </div>
 
-                <div className="col-span-2 flex justify-center">
-                  <select
-                    value={ticket.status}
-                    onChange={(e) => onStatusChange?.(ticket.id, e.target.value)}
-                    className={`text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-xl border transition-colors cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#0084ff] ${
-                      ticket.status === "Processing"
-                        ? "bg-blue-50 text-blue-700 border-blue-200"
-                        : "bg-amber-50 text-amber-700 border-amber-200"
-                    }`}
-                  >
-                    <option value="Pending">Pending</option>
-                    <option value="Processing">Processing</option>
-                    <option value="Resolved">Resolved</option>
-                    <option value="Reject">Reject</option>
-                  </select>
-                </div>
+                    <div className="col-span-2 flex items-center">
+                      <span className="font-mono text-xs sm:text-sm font-medium px-2.5 py-1 rounded-lg bg-gray-100 text-gray-800 border border-gray-200">
+                        {ticket.userId}
+                      </span>
+                    </div>
 
-                <div className="col-span-1 text-right">
-                  <button
-                    type="button"
-                    onClick={() => onViewDetails(ticket)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold bg-gray-50 hover:bg-[#0084ff] text-gray-800 hover:text-white border border-gray-200 transition-colors cursor-pointer shadow-2xs"
-                    title="Open details modal"
-                  >
-                    <Eye size={14} />
-                    <span className="hidden sm:inline">View</span>
-                  </button>
-                </div>
+                    <div className="col-span-5 pr-2">
+                      <p
+                        onClick={() => onViewDetails(ticket)}
+                        className="font-bold text-sm sm:text-base text-gray-900 hover:text-[#0084ff] cursor-pointer truncate transition-colors"
+                        title={ticket.title}
+                      >
+                        {ticket.title}
+                      </p>
+                    </div>
+
+                    <div className="col-span-2 flex justify-center">
+                      <select
+                        value={ticket.status}
+                        onChange={(e) =>
+                          onStatusChange?.(ticket.id, e.target.value)
+                        }
+                        className={`text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-xl border transition-colors cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#0084ff] ${
+                          ticket.status === "Processing"
+                            ? "bg-blue-50 text-blue-700 border-blue-200"
+                            : "bg-amber-50 text-amber-700 border-amber-200"
+                        }`}
+                      >
+                        <option value="Pending">Pending</option>
+                        <option value="Processing">Processing</option>
+                        <option value="Resolved">Resolved</option>
+                        <option value="Reject">Reject</option>
+                      </select>
+                    </div>
+
+                    <div className="col-span-1 text-right">
+                      <button
+                        type="button"
+                        onClick={() => onViewDetails(ticket)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold bg-gray-50 hover:bg-[#0084ff] text-gray-800 hover:text-white border border-gray-200 transition-colors cursor-pointer shadow-2xs"
+                        title="Open details modal"
+                      >
+                        <Eye size={14} />
+                        <span>View</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            ) : (
+              <div className="p-12 text-center text-sm text-gray-400">
+                <Inbox size={24} className="mx-auto mb-2 text-gray-300" />
+                No active tickets matching the current filter.
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="p-12 text-center text-sm text-gray-400">
-            <Inbox size={24} className="mx-auto mb-2 text-gray-300" />
-            No active tickets matching the current filter.
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );
